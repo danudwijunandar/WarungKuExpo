@@ -41,7 +41,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hello 👋</Text>
+        <Text style={styles.greeting}>Hello Ical</Text>
 
         <Text style={styles.title}>WarungKu</Text>
       </View>
