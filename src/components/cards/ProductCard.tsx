@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { useRouter } from "expo-router";
+import { Link } from "expo-router";
 
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -16,40 +16,34 @@ interface Props {
 }
 
 export default function ProductCard({ id, title, image, price }: Props) {
-  const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
+
   return (
-    <Pressable
-      style={styles.card}
-      onPress={() =>
-        router.push({
-          pathname: "/product/[id]",
-          params: { id: id },
-        })
-      }
-    >
-      <Image source={{ uri: image }} style={styles.image} />
+    <Link href={{ pathname: "/product/[id]", params: { id } }} asChild>
+      <Pressable style={styles.card}>
+        <Image source={{ uri: image }} style={styles.image} />
 
-      <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.content}>
+          <Text style={styles.title}>{title}</Text>
 
-        <Text style={styles.price}>Rp {price}</Text>
+          <Text style={styles.price}>Rp {price}</Text>
 
-        <Pressable
-          style={styles.cartButton}
-          onPress={() =>
-            addToCart({
-              id,
-              title,
-              image,
-              price,
-            })
-          }
-        >
-          <Ionicons name="cart" size={18} color={COLORS.white} />
-        </Pressable>
-      </View>
-    </Pressable>
+          <Pressable
+            style={styles.cartButton}
+            onPress={() =>
+              addToCart({
+                id,
+                title,
+                image,
+                price,
+              })
+            }
+          >
+            <Ionicons name="cart" size={18} color={COLORS.white} />
+          </Pressable>
+        </View>
+      </Pressable>
+    </Link>
   );
 }
 
