@@ -1,15 +1,5 @@
-import { Text, View } from "react-native";
+import CategoriesScreen from "@/modules/categories/screens/CategoriesScreen";
 
-export default function CategoriesScreen() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Categories</Text>
-    </View>
-  );
+export default function Categories() {
+  return <CategoriesScreen />;
 }

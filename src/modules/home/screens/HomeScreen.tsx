@@ -1,26 +1,35 @@
 import {
-    ActivityIndicator,
-    FlatList,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CategoryCard from "@/components/cards/CategoryCard";
+import { useMemo, useState } from "react";
+
 import ProductCard from "@/components/cards/ProductCard";
+
 import SearchBar from "@/components/inputs/SearchBar";
 
-import { useCategories } from "../hooks/use-categories";
 import { useProducts } from "../hooks/use-products";
 
 import { COLORS, SPACING, TYPOGRAPHY } from "@/theme";
 
 export default function HomeScreen() {
+  const [search, setSearch] = useState("");
+
   const { data: products, isLoading, isError } = useProducts();
 
-  const { data: categories } = useCategories();
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+
+    return products.filter((item) =>
+      item.name.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [products, search]);
 
   if (isLoading) {
     return (
@@ -46,35 +55,26 @@ export default function HomeScreen() {
         <Text style={styles.title}>WarungKu</Text>
       </View>
 
-      <SearchBar />
-
-      <View style={styles.categorySection}>
-        <Text style={styles.sectionTitle}>Categories</Text>
-
-        <FlatList
-          horizontal
-          data={categories || []}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <CategoryCard name={item.name} icon={item.icon} />
-          )}
-          contentContainerStyle={{
-            paddingTop: SPACING.md,
-          }}
-        />
-      </View>
+      <SearchBar
+        value={search}
+        onChangeText={setSearch}
+        placeholder="Cari barang..."
+      />
 
       <View style={styles.productSection}>
         <Text style={styles.sectionTitle}>Popular Products</Text>
 
         <FlatList
-          data={products || []}
+          data={filteredProducts}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
+          numColumns={2}
           contentContainerStyle={{
             paddingTop: SPACING.md,
             paddingBottom: 120,
+          }}
+          columnWrapperStyle={{
+            justifyContent: "space-between",
           }}
           renderItem={({ item }) => (
             <ProductCard
@@ -93,14 +93,19 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
     backgroundColor: COLORS.background,
+
     paddingHorizontal: SPACING.md,
   },
 
   loading: {
     flex: 1,
+
     justifyContent: "center",
+
     alignItems: "center",
+
     backgroundColor: COLORS.background,
   },
 
@@ -110,13 +115,17 @@ const styles = StyleSheet.create({
 
   greeting: {
     fontSize: TYPOGRAPHY.body,
+
     color: COLORS.textSecondary,
   },
 
   title: {
     fontSize: TYPOGRAPHY.h1,
+
     fontWeight: "700",
+
     color: COLORS.text,
+
     marginTop: SPACING.xs,
   },
 
@@ -126,12 +135,15 @@ const styles = StyleSheet.create({
 
   productSection: {
     flex: 1,
+
     marginTop: SPACING.xl,
   },
 
   sectionTitle: {
     fontSize: TYPOGRAPHY.h3,
+
     fontWeight: "700",
+
     color: COLORS.text,
   },
 });

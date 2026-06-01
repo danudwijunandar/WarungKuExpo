@@ -1,15 +1,15 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import QueryProvider from "@/providers/QueryProvider";
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   return (
-    <QueryProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
-    </QueryProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }

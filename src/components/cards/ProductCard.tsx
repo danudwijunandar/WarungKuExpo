@@ -4,7 +4,7 @@ import { Link } from "expo-router";
 
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { COLORS, RADIUS, SPACING, TYPOGRAPHY } from "@/theme";
+import { COLORS, RADIUS, SPACING } from "@/theme";
 
 import { useCartStore } from "@/store/cart.store";
 
@@ -19,28 +19,40 @@ export default function ProductCard({ id, title, image, price }: Props) {
   const addToCart = useCartStore((state) => state.addToCart);
 
   return (
-    <Link href={{ pathname: "/product/[id]", params: { id } }} asChild>
+    <Link
+      href={{
+        pathname: "/product/[id]",
+        params: { id },
+      }}
+      asChild
+    >
       <Pressable style={styles.card}>
         <Image source={{ uri: image }} style={styles.image} />
 
         <View style={styles.content}>
-          <Text style={styles.title}>{title}</Text>
+          <Text numberOfLines={2} style={styles.title}>
+            {title}
+          </Text>
 
-          <Text style={styles.price}>Rp {price}</Text>
+          <View style={styles.footer}>
+            <Text style={styles.price}>Rp {price.toLocaleString("id-ID")}</Text>
 
-          <Pressable
-            style={styles.cartButton}
-            onPress={() =>
-              addToCart({
-                id,
-                title,
-                image,
-                price,
-              })
-            }
-          >
-            <Ionicons name="cart" size={18} color={COLORS.white} />
-          </Pressable>
+            <Pressable
+              style={styles.cartButton}
+              onPress={(e) => {
+                e.stopPropagation();
+
+                addToCart({
+                  id,
+                  title,
+                  image,
+                  price,
+                });
+              }}
+            >
+              <Ionicons name="cart" size={16} color={COLORS.white} />
+            </Pressable>
+          </View>
         </View>
       </Pressable>
     </Link>
@@ -49,43 +61,88 @@ export default function ProductCard({ id, title, image, price }: Props) {
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
+
     backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.lg,
+
+    borderRadius: RADIUS.md,
+
     overflow: "hidden",
+
     marginBottom: SPACING.md,
+
+    marginHorizontal: 6,
+
+    elevation: 3,
+
+    shadowColor: "#000",
+
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    shadowOpacity: 0.08,
+
+    shadowRadius: 4,
   },
 
   image: {
     width: "100%",
-    height: 180,
+    height: 120,
+
+    resizeMode: "cover",
   },
 
   content: {
-    padding: SPACING.md,
+    padding: SPACING.sm,
+
+    minHeight: 95,
+
+    justifyContent: "space-between",
   },
 
   title: {
-    fontSize: TYPOGRAPHY.body,
+    fontSize: 13,
+
     fontWeight: "600",
+
     color: COLORS.text,
+
+    lineHeight: 18,
+  },
+
+  footer: {
+    marginTop: SPACING.sm,
+
+    flexDirection: "row",
+
+    justifyContent: "space-between",
+
+    alignItems: "center",
   },
 
   price: {
-    marginTop: SPACING.sm,
-    color: COLORS.primary,
+    flex: 1,
+
+    fontSize: 14,
+
     fontWeight: "700",
-    fontSize: TYPOGRAPHY.h3,
+
+    color: COLORS.primary,
   },
 
   cartButton: {
+    width: 34,
+
+    height: 34,
+
+    borderRadius: 17,
+
     backgroundColor: COLORS.primary,
-    width: 40,
-    height: 40,
-    borderRadius: RADIUS.full,
+
     justifyContent: "center",
+
     alignItems: "center",
-    position: "absolute",
-    right: SPACING.md,
-    bottom: SPACING.md,
   },
 });

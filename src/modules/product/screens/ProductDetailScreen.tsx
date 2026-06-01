@@ -1,42 +1,52 @@
-
 import {
-    ActivityIndicator,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useLocalSearchParams } from "expo-router";
 
-import Ionicons from "@expo/vector-icons/Ionicons";
-
 import { useProductDetail } from "../hooks/use-product-detail";
 
 import { useCartStore } from "@/store/cart.store";
 
-import { COLORS, RADIUS, SPACING, TYPOGRAPHY } from "@/theme";
+import AppButton from "@/components/buttons/AppButton";
 
-export default function ProductDetailScreen() {
-  const { id } = useLocalSearchParams<{
-    id: string;
-  }>();
+const ProductDetailScreen = () => {
+  const { id } = useLocalSearchParams();
 
-  const { data, isLoading } = useProductDetail(id);
+  const { data, isLoading } = useProductDetail(id as string);
 
   const addToCart = useCartStore((state) => state.addToCart);
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
-      <SafeAreaView style={styles.loading}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </SafeAreaView>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#22C55E" />
+      </View>
     );
   }
+
+  if (!data) {
+    return null;
+  }
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: data.id,
+      title: data.name,
+      image: data.image,
+      price: data.price,
+    });
+
+    Alert.alert("Success", "Product added to cart");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,54 +54,48 @@ export default function ProductDetailScreen() {
         <Image source={{ uri: data.image }} style={styles.image} />
 
         <View style={styles.content}>
-          <Text style={styles.title}>{data.name}</Text>
+          <Text style={styles.name}>{data.name}</Text>
 
-          <Text style={styles.price}>Rp {data.price}</Text>
+          <Text style={styles.brand}>{data.brand}</Text>
 
-          <View style={styles.infoRow}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Stock {data.stock}</Text>
-            </View>
+          <Text style={styles.price}>
+            Rp {data.price.toLocaleString("id-ID")}
+          </Text>
 
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{data.brand}</Text>
-            </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoLabel}>Stock</Text>
+
+            <Text style={styles.infoValue}>{data.stock}</Text>
+          </View>
+
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoLabel}>Expired</Text>
+
+            <Text style={styles.infoValue}>{data.expiredDate}</Text>
           </View>
 
           <Text style={styles.descriptionTitle}>Description</Text>
 
           <Text style={styles.description}>{data.description}</Text>
+
+          <View style={styles.buttonContainer}>
+            <AppButton title="Add To Cart" onPress={handleAddToCart} />
+          </View>
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <Pressable
-          style={styles.cartButton}
-          onPress={() =>
-            addToCart({
-              id: data.id,
-              title: data.name,
-              image: data.image,
-              price: data.price,
-            })
-          }
-        >
-          <Ionicons name="cart" size={20} color={COLORS.white} />
-
-          <Text style={styles.cartText}>Add To Cart</Text>
-        </Pressable>
-      </View>
     </SafeAreaView>
   );
-}
+};
+
+export default ProductDetailScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: "#FFFFFF",
   },
 
-  loading: {
+  loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -104,72 +108,60 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    padding: SPACING.lg,
+    padding: 20,
   },
 
-  title: {
-    fontSize: TYPOGRAPHY.h2,
+  name: {
+    fontSize: 26,
     fontWeight: "700",
-    color: COLORS.text,
+    color: "#111827",
+  },
+
+  brand: {
+    marginTop: 8,
+    fontSize: 14,
+    color: "#6B7280",
   },
 
   price: {
-    fontSize: TYPOGRAPHY.h1,
-    color: COLORS.primary,
+    marginTop: 14,
+    fontSize: 28,
     fontWeight: "700",
-    marginTop: SPACING.sm,
+    color: "#22C55E",
   },
 
-  infoRow: {
+  infoContainer: {
     flexDirection: "row",
-    marginTop: SPACING.lg,
+    marginTop: 18,
   },
 
-  badge: {
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.full,
-    marginRight: SPACING.sm,
-  },
-
-  badgeText: {
-    color: COLORS.text,
+  infoLabel: {
+    width: 80,
+    fontSize: 14,
     fontWeight: "600",
+    color: "#374151",
+  },
+
+  infoValue: {
+    fontSize: 14,
+    color: "#6B7280",
   },
 
   descriptionTitle: {
-    fontSize: TYPOGRAPHY.h3,
+    marginTop: 30,
+    marginBottom: 10,
+    fontSize: 18,
     fontWeight: "700",
-    color: COLORS.text,
-    marginTop: SPACING.xl,
-    marginBottom: SPACING.sm,
+    color: "#111827",
   },
 
   description: {
-    fontSize: TYPOGRAPHY.body,
-    color: COLORS.textSecondary,
+    fontSize: 14,
     lineHeight: 24,
+    color: "#4B5563",
   },
 
-  footer: {
-    padding: SPACING.md,
-    backgroundColor: COLORS.surface,
-  },
-
-  cartButton: {
-    backgroundColor: COLORS.primary,
-    height: 56,
-    borderRadius: RADIUS.md,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-  },
-
-  cartText: {
-    color: COLORS.white,
-    fontWeight: "700",
-    fontSize: TYPOGRAPHY.body,
-    marginLeft: SPACING.sm,
+  buttonContainer: {
+    marginTop: 30,
   },
 });

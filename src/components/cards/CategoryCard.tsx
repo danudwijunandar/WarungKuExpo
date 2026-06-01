@@ -1,52 +1,97 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
 
-import { COLORS, RADIUS, SPACING, TYPOGRAPHY } from "@/theme";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 interface Props {
+  id: string;
   name: string;
   icon: string;
 }
 
-export default function CategoryCard({ name, icon }: Props) {
+export default function CategoryGridCard({ id, name, icon }: Props) {
   return (
-    <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Image source={{ uri: icon }} style={styles.icon} />
-      </View>
+    <Link
+      href={{
+        pathname: "/products/category/[id]",
+        params: {
+          id,
+          name,
+        },
+      }}
+      asChild
+    >
+      <Pressable style={styles.container}>
+        <View style={styles.iconContainer}>
+          <Image source={{ uri: icon }} style={styles.icon} />
+        </View>
 
-      <Text numberOfLines={1} style={styles.name}>
-        {name}
-      </Text>
-    </View>
+        <Text style={styles.name}>{name}</Text>
+      </Pressable>
+    </Link>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+
+    backgroundColor: "#FFFFFF",
+
+    marginHorizontal: 6,
+
+    marginBottom: 14,
+
+    borderRadius: 24,
+
+    paddingVertical: 24,
+
     alignItems: "center",
-    marginRight: SPACING.md,
-    width: 80,
+
+    elevation: 3,
+
+    shadowColor: "#000",
+
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    shadowOpacity: 0.08,
+
+    shadowRadius: 4,
   },
 
   iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.surface,
+    width: 80,
+
+    height: 80,
+
+    borderRadius: 40,
+
+    backgroundColor: "#F3F4F6",
+
     justifyContent: "center",
+
     alignItems: "center",
+
+    marginBottom: 14,
   },
 
   icon: {
-    width: 32,
-    height: 32,
+    width: 42,
+
+    height: 42,
+
     resizeMode: "contain",
   },
 
   name: {
-    marginTop: SPACING.sm,
-    fontSize: TYPOGRAPHY.caption,
+    fontSize: 15,
+
+    fontWeight: "600",
+
+    color: "#111827",
+
     textAlign: "center",
-    color: COLORS.text,
   },
 });
