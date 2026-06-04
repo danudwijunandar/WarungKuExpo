@@ -1,28 +1,27 @@
+import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
-
 import { StyleSheet, TextInput, View } from "react-native";
-
-import { COLORS, RADIUS, SPACING } from "@/theme";
+import { useTheme } from "@/theme";
 
 interface Props {
   value: string;
-
   onChangeText: (text: string) => void;
-
   placeholder?: string;
 }
 
 export default function SearchBar({ value, onChangeText, placeholder }: Props) {
+  const { colors, spacing, radius } = useTheme();
+
   return (
-    <View style={styles.container}>
-      <Ionicons name="search" size={20} color="#9CA3AF" />
+    <View style={[styles.container, { backgroundColor: colors.card, borderRadius: radius.full, paddingHorizontal: spacing.md, marginTop: spacing.lg }]}>
+      <Ionicons name="search" size={20} color={colors.textSecondary} />
 
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#9CA3AF"
-        style={styles.input}
+        placeholderTextColor={colors.textSecondary + "80"}
+        style={[styles.input, { marginLeft: spacing.sm, color: colors.textPrimary }]}
       />
     </View>
   );
@@ -31,27 +30,11 @@ export default function SearchBar({ value, onChangeText, placeholder }: Props) {
 const styles = StyleSheet.create({
   container: {
     height: 52,
-
-    backgroundColor: COLORS.surface,
-
-    borderRadius: RADIUS.full,
-
     flexDirection: "row",
-
     alignItems: "center",
-
-    paddingHorizontal: SPACING.md,
-
-    marginTop: SPACING.lg,
   },
-
   input: {
     flex: 1,
-
-    marginLeft: SPACING.sm,
-
     fontSize: 15,
-
-    color: COLORS.text,
   },
 });

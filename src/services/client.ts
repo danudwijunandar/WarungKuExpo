@@ -1,11 +1,14 @@
 import axios from "axios";
+import { ENV } from "@/config/env";
+import { setupInterceptors } from "./interceptors";
 
-export const client = axios.create({
-  baseURL: "https://6a198d06489e4715751a18af.mockapi.io",
-
+const axiosInstance = axios.create({
+  baseURL: ENV.API_URL,
   headers: {
     "Content-Type": "application/json",
   },
-
   timeout: 10000,
 });
+
+export const client = setupInterceptors(axiosInstance);
+export default client;

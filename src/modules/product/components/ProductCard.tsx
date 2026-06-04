@@ -8,9 +8,10 @@ interface Props {
   title: string;
   price: number;
   brand: string;
+  stock?: number;
 }
 
-const ProductCard = ({ id, image, title, price, brand }: Props) => {
+const ProductCard = ({ id, image, title, price, brand, stock }: Props) => {
   const router = useRouter();
 
   return (
@@ -32,6 +33,10 @@ const ProductCard = ({ id, image, title, price, brand }: Props) => {
         <Text numberOfLines={2} style={styles.name}>
           {title}
         </Text>
+
+        {stock !== undefined && (
+          <Text style={styles.stock}>Stock: {stock}</Text>
+        )}
 
         <Text style={styles.brand}>{brand}</Text>
 
@@ -71,7 +76,8 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    padding: 12,
+    padding: 14,
+    gap: 4,
   },
 
   name: {
@@ -84,7 +90,15 @@ const styles = StyleSheet.create({
   brand: {
     fontSize: 12,
     color: "#6B7280",
-    marginTop: 4,
+    marginTop: 2,
+  },
+
+  stock: {
+    fontSize: 11,
+    fontWeight: "500",
+    color: "#9CA3AF",
+    marginTop: 2,
+    letterSpacing: 0.1,
   },
 
   price: {

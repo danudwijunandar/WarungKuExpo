@@ -1,93 +1,184 @@
-
+import React, { useState, useCallback } from "react";
 import {
-    FlatList,
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { router } from "expo-router";
 
-import { useCartStore } from "@/store/cart.store";
-
-import { COLORS, RADIUS, SPACING, TYPOGRAPHY } from "@/theme";
+import { useCart } from "../hooks/use-cart";
+import CartItemCard from "../components/CartItemCard";
+import { useToastStore } from "@/store/toast.store";
+import { useTheme } from "@/theme";
 
 export default function CartScreen() {
-  const { items, increaseQty, decreaseQty, removeFromCart } = useCartStore();
+  const {
+    items,
+    selectedCount,
+    selectedTotal,
+    isSelected,
+    isAllSelected,
+    toggleSelection,
+    toggleSelectAll,
+    removeFromCart,
+    increaseQty,
+    decreaseQty,
+    clearCart,
+  } = useCart();
 
-  const totalPrice = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
+  const { colors, spacing, radius, typography, shadows } = useTheme();
+  const showToast = useToastStore((s) => s.showToast);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const hasItems = items.length > 0;
+  const hasSelection = selectedCount > 0;
+
+  const handleClearCart = useCallback(() => {
+    Alert.alert(
+      "Kosongkan Keranjang?",
+      "Semua barang akan dihapus dari keranjang.",
+      [
+        { text: "Batal", style: "cancel" },
+        {
+          text: "Kosongkan",
+          style: "destructive",
+          onPress: () => {
+            clearCart();
+            showToast("Keranjang berhasil dikosongkan", "success");
+          },
+        },
+      ]
+    );
+  }, [clearCart, showToast]);
+
+  const handleCheckout = useCallback(() => {
+    if (!hasSelection) return;
+    router.push("/checkout");
+  }, [hasSelection]);
+
+  const renderCartItem = useCallback(({ item }: { item: any }) => (
+    <CartItemCard
+      item={item}
+      selected={isSelected(item.id)}
+      onToggleSelect={() => toggleSelection(item.id)}
+      onIncrease={() => increaseQty(item.id)}
+      onDecrease={() => decreaseQty(item.id)}
+      onDelete={() => {
+        removeFromCart(item.id);
+        showToast("Barang dihapus dari keranjang", "success");
+      }}
+    />
+  ), [isSelected, toggleSelection, increaseQty, decreaseQty, removeFromCart, showToast]);
+
+  const renderEmpty = () => (
+    <View style={styles.emptyContainer}>
+      <View style={[styles.emptyIconWrapper, { backgroundColor: colors.card, ...shadows.sm }]}>
+        <Ionicons name="cart-outline" size={60} color={colors.textSecondary} />
+      </View>
+      <Text style={[styles.emptyTitle, { color: colors.textPrimary, fontSize: typography.h3, marginBottom: spacing.xs }]}>
+        Keranjang Kosong
+      </Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+        Belum ada barang di keranjangmu. Yuk, mulai belanja!
+      </Text>
+    </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>My Cart</Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
+      {/* HEADER */}
+      <View style={[styles.header, { paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.sm }]}>
+        <View>
+          <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.h1 }]}>Keranjang</Text>
+          {hasItems && (
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              {items.length} barang · {selectedCount} dipilih
+            </Text>
+          )}
+        </View>
+        {hasItems && (
+          <Pressable style={[styles.clearBtn, { borderColor: colors.danger, borderRadius: radius.sm }]} onPress={handleClearCart}>
+            <Text style={[styles.clearBtnText, { color: colors.danger }]}>Hapus Semua</Text>
+          </Pressable>
+        )}
+      </View>
 
+      {/* SELECT ALL BAR */}
+      {hasItems && (
+        <Pressable
+          style={[styles.selectAllBar, { marginHorizontal: spacing.md, marginBottom: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, backgroundColor: colors.card, borderRadius: radius.md, borderColor: colors.border }]}
+          onPress={toggleSelectAll}
+        >
+          <View style={[styles.checkbox, { borderColor: colors.border, backgroundColor: isAllSelected ? colors.primary : colors.card }]}>
+            {isAllSelected && (
+              <Ionicons name="checkmark" size={14} color={colors.white} />
+            )}
+          </View>
+          <Text style={[styles.selectAllText, { marginLeft: spacing.sm, color: colors.textPrimary }]}>
+            {isAllSelected ? "Batalkan Semua" : "Pilih Semua"}
+          </Text>
+          {hasSelection && (
+            <View style={[styles.selectionBadge, { backgroundColor: colors.primary + "15", borderRadius: radius.full, paddingHorizontal: spacing.sm }]}>
+              <Text style={[styles.selectionBadgeText, { color: colors.primary }]}>{selectedCount} dipilih</Text>
+            </View>
+          )}
+        </Pressable>
+      )}
+
+      {/* LIST */}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: 120,
-        }}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Cart masih kosong</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image source={{ uri: item.image }} style={styles.image} />
-
-            <View style={styles.content}>
-              <Text style={styles.name}>{item.title}</Text>
-
-              <Text style={styles.price}>Rp {item.price}</Text>
-
-              <View style={styles.actions}>
-                <Pressable
-                  style={styles.qtyButton}
-                  onPress={() => decreaseQty(item.id)}
-                >
-                  <Ionicons name="remove" size={18} color={COLORS.white} />
-                </Pressable>
-
-                <Text style={styles.qty}>{item.quantity}</Text>
-
-                <Pressable
-                  style={styles.qtyButton}
-                  onPress={() => increaseQty(item.id)}
-                >
-                  <Ionicons name="add" size={18} color={COLORS.white} />
-                </Pressable>
-
-                <Pressable
-                  style={styles.deleteButton}
-                  onPress={() => removeFromCart(item.id)}
-                >
-                  <Ionicons name="trash" size={18} color={COLORS.white} />
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        )}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingHorizontal: spacing.md, paddingBottom: 160 },
+          !hasItems && styles.listContentEmpty,
+        ]}
+        initialNumToRender={8}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews={true}
+        ListEmptyComponent={renderEmpty}
+        renderItem={renderCartItem}
       />
 
-      {items.length > 0 && (
-        <View style={styles.footer}>
-          <View>
-            <Text style={styles.totalLabel}>Total</Text>
-
-            <Text style={styles.totalPrice}>Rp {totalPrice}</Text>
+      {/* STICKY FOOTER */}
+      {hasItems && (
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.lg }]}>
+          <View style={[styles.totalArea, { marginRight: spacing.md }]}>
+            <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
+              Total {hasSelection ? `(${selectedCount} barang)` : ""}
+            </Text>
+            <Text style={[styles.totalPrice, { color: colors.textPrimary, fontSize: typography.h2 }]}>
+              {hasSelection
+                ? `Rp ${selectedTotal.toLocaleString("id-ID")}`
+                : "—"}
+            </Text>
           </View>
 
-          <Pressable style={styles.checkoutBtn}>
-            <Text style={styles.checkoutText}>Checkout</Text>
+          <Pressable
+            style={[
+              styles.checkoutBtn,
+              { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+              !hasSelection && { backgroundColor: colors.border },
+            ]}
+            onPress={handleCheckout}
+            disabled={!hasSelection || isCheckingOut}
+          >
+            {isCheckingOut ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              <Text style={[styles.checkoutText, { color: colors.white }]}>
+                {hasSelection ? `Checkout (${selectedCount})` : "Pilih Barang"}
+              </Text>
+            )}
           </Pressable>
         </View>
       )}
@@ -96,129 +187,115 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
-    paddingHorizontal: SPACING.md,
   },
-
-  title: {
-    fontSize: TYPOGRAPHY.h1,
-    fontWeight: "700",
-    color: COLORS.text,
-    marginTop: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 100,
-  },
-
-  emptyText: {
-    fontSize: TYPOGRAPHY.body,
-    color: COLORS.textSecondary,
-  },
-
-  card: {
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
-    flexDirection: "row",
-  },
-
-  image: {
-    width: 90,
-    height: 90,
-    borderRadius: RADIUS.md,
-  },
-
-  content: {
-    flex: 1,
-    marginLeft: SPACING.md,
-  },
-
-  name: {
-    fontSize: TYPOGRAPHY.body,
-    fontWeight: "600",
-    color: COLORS.text,
-  },
-
-  price: {
-    marginTop: SPACING.sm,
-    color: COLORS.primary,
-    fontWeight: "700",
-    fontSize: TYPOGRAPHY.h3,
-  },
-
-  actions: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: SPACING.md,
-  },
-
-  qtyButton: {
-    width: 32,
-    height: 32,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  qty: {
-    marginHorizontal: SPACING.md,
-    fontSize: TYPOGRAPHY.body,
-    fontWeight: "700",
-  },
-
-  deleteButton: {
-    width: 32,
-    height: 32,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.danger,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: SPACING.lg,
-  },
-
-  footer: {
-    position: "absolute",
-    bottom: 20,
-    left: 16,
-    right: 16,
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-
+  title: {
+    fontWeight: "700",
+  },
+  subtitle: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+  clearBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+  },
+  clearBtnText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  selectAllBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  selectAllText: {
+    fontSize: 14,
+    fontWeight: "600",
+    flex: 1,
+  },
+  selectionBadge: {
+    paddingVertical: 3,
+  },
+  selectionBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  listContent: {},
+  listContentEmpty: {
+    flex: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+    paddingTop: 80,
+  },
+  emptyIconWrapper: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+  },
+  totalArea: {
+    flex: 1,
+  },
   totalLabel: {
-    fontSize: TYPOGRAPHY.bodySmall,
-    color: COLORS.textSecondary,
+    fontSize: 12,
+    fontWeight: "500",
   },
-
   totalPrice: {
-    fontSize: TYPOGRAPHY.h2,
     fontWeight: "700",
-    color: COLORS.primary,
+    marginTop: 2,
   },
-
   checkoutBtn: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
+    minWidth: 140,
+    alignItems: "center",
+    elevation: 2,
   },
-
   checkoutText: {
-    color: COLORS.white,
     fontWeight: "700",
-    fontSize: TYPOGRAPHY.body,
+    fontSize: 14,
   },
 });
