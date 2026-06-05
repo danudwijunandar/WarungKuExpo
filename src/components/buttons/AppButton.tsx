@@ -1,31 +1,54 @@
 import { Pressable, StyleSheet, Text } from "react-native";
-
-import { COLORS, RADIUS, SPACING, TYPOGRAPHY } from "@/theme";
+import { useTheme } from "@/theme";
 
 interface Props {
   title: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
-export default function AppButton({ title, onPress }: Props) {
+export default function AppButton({ title, onPress, disabled = false }: Props) {
+  const { colors, spacing, radius, typography } = useTheme();
+
   return (
-    <Pressable style={styles.button} onPress={onPress}>
-      <Text style={styles.text}>{title}</Text>
+    <Pressable
+      style={({ pressed }) => [
+        styles.button,
+        {
+          backgroundColor: disabled ? colors.border : colors.primary,
+          borderRadius: radius.md,
+          paddingVertical: spacing.md,
+        },
+        !disabled && pressed && styles.pressed,
+      ]}
+      onPress={disabled ? undefined : onPress}
+      disabled={disabled}
+    >
+      <Text
+        style={[
+          styles.text,
+          {
+            color: disabled ? colors.textSecondary : colors.white,
+            fontSize: typography.body,
+          },
+        ]}
+      >
+        {title}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
     alignItems: "center",
+    justifyContent: "center",
   },
-
   text: {
-    color: COLORS.white,
-    fontSize: TYPOGRAPHY.body,
     fontWeight: "600",
   },
+  pressed: {
+    opacity: 0.8,
+  },
 });
+

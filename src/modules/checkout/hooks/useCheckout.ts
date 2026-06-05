@@ -5,14 +5,16 @@ import { ProductService } from "@/services/product/product.service";
 import { productKeys } from "@/modules/product/hooks/query-keys";
 import { useCartStore, CartItem } from "@/store/cart.store";
 import { useToastStore } from "@/store/toast.store";
+import { useHistoryStore } from "@/store/history.store";
 
 interface CheckoutInput {
   items: CartItem[];
+  paymentMethod: "CASH" | "TRANSFER" | "E_WALLET";
 }
 
 export const useCheckout = () => {
   const queryClient = useQueryClient();
-  const clearSelectedItems = useCartStore((s) => s.clearSelectedItems);
+  const clearCart = useCartStore((s) => s.clearCart);
   const showToast = useToastStore((s) => s.showToast);
 
   return useMutation({
@@ -47,12 +49,23 @@ export const useCheckout = () => {
       return items;
     },
 
-    onSuccess: (checkedOutItems) => {
-      const ids = checkedOutItems.map((i) => i.id);
+    onSuccess: (checkedOutItems, variables) => {
       const count = checkedOutItems.length;
 
-      // Remove checked-out items from cart
-      clearSelectedItems(ids);
+      // Add checked-out items to history
+      useHistoryStore.getState().addTransaction(
+        checkedOutItems.map((item) => ({
+          id: item.id,
+          title: item.title,
+          image: item.image,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        variables.paymentMethod
+      );
+
+      // Remove checked-out items from cart (clear entire cart as per requirement)
+      clearCart();
 
       // Refetch product data so stock is fresh everywhere
       queryClient.invalidateQueries({ queryKey: productKeys.all });

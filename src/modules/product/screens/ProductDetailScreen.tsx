@@ -14,7 +14,7 @@ import { Image } from "expo-image";
 
 import { useProductById } from "../hooks/useProductById";
 import { useDeleteProduct } from "../hooks/useDeleteProduct";
-import { useCartStore } from "@/store/cart.store";
+import { useQuantityModalStore } from "@/store/quantity-modal.store";
 import { useTheme } from "@/theme";
 
 import AppButton from "@/components/buttons/AppButton";
@@ -27,8 +27,7 @@ const ProductDetailScreen = () => {
 
   const { data, isLoading, refetch } = useProductById(id as string);
   const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
-
-  const addToCart = useCartStore((state) => state.addToCart);
+  const openModal = useQuantityModalStore((state) => state.openModal);
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -45,13 +44,14 @@ const ProductDetailScreen = () => {
 
   const handleAddToCart = useCallback(() => {
     if (!data) return;
-    addToCart({
+    openModal({
       id: data.id,
       title: data.name,
       image: data.image,
       price: data.price,
+      stock: data.stock,
     });
-  }, [data, addToCart]);
+  }, [data, openModal]);
 
   if (isLoading) {
     return (
@@ -120,7 +120,11 @@ const ProductDetailScreen = () => {
           <View style={[styles.buttonContainer, { marginTop: spacing.xl }]}>
             <View style={styles.actionRow}>
               <View style={[styles.cartButtonWrapper, { marginRight: spacing.md }]}>
-                <AppButton title="Add To Cart" onPress={handleAddToCart} />
+                <AppButton
+                  title={data.stock <= 0 ? "Stok Habis" : "Add To Cart"}
+                  onPress={handleAddToCart}
+                  disabled={data.stock <= 0}
+                />
               </View>
               <View style={[styles.favoriteButtonWrapper, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: radius.md }]}>
                 <FavoriteButton

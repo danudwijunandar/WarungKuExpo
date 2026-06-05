@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/theme";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "@/components/error/ErrorFallback";
 import { useToastStore } from "@/store/toast.store";
+import QuantitySelectorModal from "@/components/feedback/QuantitySelectorModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +37,7 @@ export default function RootLayout() {
           <ThemeProvider>
             <Stack screenOptions={{ headerShown: false }} />
             <Toast />
+            <QuantitySelectorModal />
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

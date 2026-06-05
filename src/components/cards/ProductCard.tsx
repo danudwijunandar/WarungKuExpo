@@ -5,7 +5,7 @@ import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 
 import { useTheme } from "@/theme";
-import { useCartStore } from "@/store/cart.store";
+import { useQuantityModalStore } from "@/store/quantity-modal.store";
 import { useDeleteProduct } from "@/modules/product/hooks/useDeleteProduct";
 import DeleteConfirmDialog from "@/components/feedback/DeleteConfirmDialog";
 
@@ -25,7 +25,7 @@ interface Props {
 const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock }) => {
   const router = useRouter();
   const { colors, spacing, radius, shadows, isEditMode } = useTheme();
-  const addToCart = useCartStore((state) => state.addToCart);
+  const openModal = useQuantityModalStore((state) => state.openModal);
   const { mutate: deleteProduct, isPending } = useDeleteProduct();
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -37,15 +37,12 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
     });
   }, [id, deleteProduct]);
 
-  const handleAddToCart = useCallback((e: any) => {
+  const handleOpenQuantityModal = useCallback((e: any) => {
     e.stopPropagation();
-    addToCart({
-      id,
-      title,
-      image,
-      price,
-    });
-  }, [id, title, image, price, addToCart]);
+    openModal({ id, title, image, price, stock });
+  }, [id, title, image, price, stock, openModal]);
+
+  const isOutOfStock = stock !== undefined && stock <= 0;
 
   return (
     <>
@@ -120,8 +117,12 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
               </Text>
 
               <Pressable
-                style={[styles.cartButton, { backgroundColor: colors.primary }]}
-                onPress={handleAddToCart}
+                style={[
+                  styles.cartButton,
+                  { backgroundColor: isOutOfStock ? colors.border : colors.primary },
+                ]}
+                onPress={handleOpenQuantityModal}
+                disabled={isOutOfStock}
               >
                 <Ionicons name="cart" size={16} color={colors.white} />
               </Pressable>

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 
 import { useTheme } from "@/theme";
-import { useCartStore } from "@/store/cart.store";
+import { useQuantityModalStore } from "@/store/quantity-modal.store";
 import FavoriteButton from "@/components/buttons/FavoriteButton";
 
 interface FavoriteProductCardProps {
@@ -17,17 +17,17 @@ interface FavoriteProductCardProps {
 
 const FavoriteProductCardComponent: React.FC<FavoriteProductCardProps> = ({ id, title, image, price }) => {
   const { colors, spacing, radius, shadows } = useTheme();
-  const addToCart = useCartStore((state) => state.addToCart);
+  const openModal = useQuantityModalStore((state) => state.openModal);
 
-  const handleAddToCart = useCallback((e: any) => {
+  const handleOpenQuantityModal = useCallback((e: any) => {
     e.stopPropagation();
-    addToCart({
+    openModal({
       id,
       title,
       image,
       price,
     });
-  }, [id, title, image, price, addToCart]);
+  }, [id, title, image, price, openModal]);
 
   return (
     <Link
@@ -62,7 +62,7 @@ const FavoriteProductCardComponent: React.FC<FavoriteProductCardProps> = ({ id, 
 
             <Pressable
               style={[styles.cartButton, { backgroundColor: colors.primary }]}
-              onPress={handleAddToCart}
+              onPress={handleOpenQuantityModal}
             >
               <Ionicons name="cart" size={16} color={colors.white} />
             </Pressable>

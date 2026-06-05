@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -17,7 +17,7 @@ export default function AddProductScreen() {
   const { mutate: createProduct, isPending } = useCreateProduct();
   const { data: categories, isLoading: isLoadingCategories } = useCategories();
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<any>({
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm<any>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
@@ -31,7 +31,7 @@ export default function AddProductScreen() {
     },
   });
 
-  const selectedCategoryId = watch("categoryId");
+  const selectedCategoryId = useWatch({ control, name: "categoryId" });
 
   const onSubmit = (data: any) => {
     createProduct(data, {

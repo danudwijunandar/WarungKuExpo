@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -21,7 +21,7 @@ export default function EditProductScreen() {
   const { mutate: updateProduct, isPending } = useUpdateProduct();
   const { data: categories, isLoading: isLoadingCategories } = useCategories();
 
-  const { control, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<any>({
+  const { control, handleSubmit, setValue, reset, formState: { errors } } = useForm<any>({
     resolver: zodResolver(productSchema),
   });
 
@@ -41,7 +41,7 @@ export default function EditProductScreen() {
     }
   }, [product, reset]);
 
-  const selectedCategoryId = watch("categoryId");
+  const selectedCategoryId = useWatch({ control, name: "categoryId" });
 
   const onSubmit = (data: any) => {
     updateProduct({ id: id as string, ...data }, {

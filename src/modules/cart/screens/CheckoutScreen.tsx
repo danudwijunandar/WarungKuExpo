@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -22,7 +22,7 @@ export default function CheckoutScreen() {
 
   const checkout = useCheckout();
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<CheckoutFormValues>({
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       name: "",
@@ -32,11 +32,15 @@ export default function CheckoutScreen() {
     },
   });
 
-  const selectedPaymentMethod = watch("paymentMethod");
+  const selectedPaymentMethod = useWatch({ control, name: "paymentMethod" });
 
   const onSubmit = async () => {
     try {
-      await checkout.mutateAsync({ items: selectedItems });
+      if (!selectedPaymentMethod) return;
+      await checkout.mutateAsync({
+        items: selectedItems,
+        paymentMethod: selectedPaymentMethod,
+      });
       router.replace("/");
     } catch {
       // Error handling is done inside useCheckout (Alert + toast)

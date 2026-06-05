@@ -13,7 +13,7 @@ interface CartState {
   items: CartItem[];
   selectedIds: string[];
 
-  addToCart: (item: Omit<CartItem, "quantity">) => void;
+  addToCart: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   removeFromCart: (id: string) => void;
   increaseQty: (id: string) => void;
   decreaseQty: (id: string) => void;
@@ -30,7 +30,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   selectedIds: [],
 
-  addToCart: (item) =>
+  addToCart: (item, quantity = 1) =>
     set((state) => {
       const existingItem = state.items.find((i) => i.id === item.id);
 
@@ -42,13 +42,13 @@ export const useCartStore = create<CartState>((set, get) => ({
       if (existingItem) {
         return {
           items: state.items.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+            i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
           ),
         };
       }
 
       return {
-        items: [...state.items, { ...item, quantity: 1 }],
+        items: [...state.items, { ...item, quantity }],
         // auto-select newly added item
         selectedIds: [...state.selectedIds, item.id],
       };
