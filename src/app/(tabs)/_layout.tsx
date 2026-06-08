@@ -1,6 +1,6 @@
+import { useTheme } from "@/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
-import { useTheme } from "@/theme";
 
 export default function TabsLayout() {
   const { colors } = useTheme();
@@ -61,14 +61,8 @@ export default function TabsLayout() {
       />
 
       {/* Hidden from tab bar — accessed via stack navigation */}
-      <Tabs.Screen
-        name="cart"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="history"
-        options={{ href: null }}
-      />
+      <Tabs.Screen name="cart" options={{ href: null }} />
+      <Tabs.Screen name="history" options={{ href: null }} />
     </Tabs>
   );
 }
