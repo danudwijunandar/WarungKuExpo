@@ -1,5 +1,6 @@
 import React from "react";
 import { Controller } from "react-hook-form";
+// eslint-disable-next-line import/no-named-as-default
 import Input, { InputProps } from "./Input";
 
 interface FormFieldProps extends Omit<InputProps, "error" | "value" | "onChangeText"> {

@@ -1,12 +1,30 @@
+//
+// ======================
+// Imports & Dependencies
+// ======================
+//
 import React, { useState } from "react";
 import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+
 import { useTheme } from "@/theme";
 
+//
+// ======================
+// Type Definitions
+// ======================
+//
 export interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
 }
 
+//
+// ======================
+// Reusable Input Component
+// ======================
+//
+// Generic text input with label, error state, and focus border.
+// Used across forms (Checkout, AddProduct, EditProduct, etc).
 export const Input: React.FC<InputProps> = ({
   label,
   error,
@@ -19,18 +37,26 @@ export const Input: React.FC<InputProps> = ({
   const { colors, spacing, radius, typography } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
 
+  // Handle focus state untuk border color
   const handleFocus = (e: any) => {
     setIsFocused(true);
     if (onFocus) onFocus(e);
   };
 
+  // Handle blur state untuk border color
   const handleBlur = (e: any) => {
     setIsFocused(false);
     if (onBlur) onBlur(e);
   };
 
+  //
+  // ======================
+  // Render
+  // ======================
+  //
   return (
     <View style={styles.container}>
+      {/* Label */}
       {label && (
         <Text
           style={[
@@ -45,6 +71,8 @@ export const Input: React.FC<InputProps> = ({
           {label}
         </Text>
       )}
+
+      {/* Text Input - border color changes on focus/error */}
       <TextInput
         placeholderTextColor={placeholderTextColor || colors.textSecondary + "80"}
         onFocus={handleFocus}
@@ -64,6 +92,8 @@ export const Input: React.FC<InputProps> = ({
         ]}
         {...props}
       />
+
+      {/* Error Message */}
       {error && (
         <Text
           style={[
@@ -84,6 +114,11 @@ export const Input: React.FC<InputProps> = ({
 
 export default Input;
 
+//
+// ======================
+// Styles
+// ======================
+//
 const styles = StyleSheet.create({
   container: {
     width: "100%",

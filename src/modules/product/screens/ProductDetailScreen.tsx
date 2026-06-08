@@ -1,3 +1,8 @@
+//
+// ======================
+// Imports & Dependencies
+// ======================
+//
 import React, { useState, useCallback } from "react";
 import {
   ActivityIndicator,
@@ -21,16 +26,38 @@ import AppButton from "@/components/buttons/AppButton";
 import FavoriteButton from "@/components/buttons/FavoriteButton";
 import DeleteConfirmDialog from "@/components/feedback/DeleteConfirmDialog";
 
+//
+// ======================
+// Product Detail Screen (Main)
+// ======================
+//
 const ProductDetailScreen = () => {
+  //
+  // ======================
+  // Setup & Hooks
+  // ======================
+  //
   const { id } = useLocalSearchParams();
   const { colors, spacing, radius, typography, isEditMode } = useTheme();
 
-  const { data, isLoading, refetch } = useProductById(id as string);
+  const { data, isLoading } = useProductById(id as string);
   const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
   const openModal = useQuantityModalStore((state) => state.openModal);
 
+  //
+  // ======================
+  // State
+  // ======================
+  //
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  //
+  // ======================
+  // Handlers
+  // ======================
+  //
+
+  // Handle hapus produk
   const handleDeleteProduct = useCallback(() => {
     deleteProduct(id as string, {
       onSuccess: () => {
@@ -42,6 +69,7 @@ const ProductDetailScreen = () => {
     });
   }, [id, deleteProduct]);
 
+  // Handle buka modal quantity untuk cart
   const handleAddToCart = useCallback(() => {
     if (!data) return;
     openModal({
@@ -53,6 +81,11 @@ const ProductDetailScreen = () => {
     });
   }, [data, openModal]);
 
+  //
+  // ======================
+  // Render Loading & Empty States
+  // ======================
+  //
   if (isLoading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
@@ -77,9 +110,15 @@ const ProductDetailScreen = () => {
     );
   }
 
+  //
+  // ======================
+  // Render
+  // ======================
+  //
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["bottom"]}>
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header Image */}
         <View style={styles.imageContainer}>
           <Image source={{ uri: data.image }} style={styles.image} contentFit="cover" transition={200} />
           <Pressable
@@ -94,6 +133,7 @@ const ProductDetailScreen = () => {
           </Pressable>
         </View>
 
+        {/* Content Section */}
         <View style={[styles.content, { padding: spacing.lg }]}>
           <Text style={[styles.name, { color: colors.textPrimary, fontSize: typography.h2 }]}>{data.name}</Text>
 
@@ -103,6 +143,7 @@ const ProductDetailScreen = () => {
             Rp {data.price.toLocaleString("id-ID")}
           </Text>
 
+          {/* Info Rows */}
           <View style={[styles.infoContainer, { marginTop: spacing.md }]}>
             <Text style={[styles.infoLabel, { color: colors.textPrimary, width: 80 }]}>Stock</Text>
             <Text style={[styles.infoValue, { color: colors.textSecondary }]}>{data.stock}</Text>
@@ -113,10 +154,12 @@ const ProductDetailScreen = () => {
             <Text style={[styles.infoValue, { color: colors.textSecondary }]}>{data.expiredDate}</Text>
           </View>
 
+          {/* Description */}
           <Text style={[styles.descriptionTitle, { color: colors.textPrimary, marginTop: spacing.xl, marginBottom: spacing.sm, fontSize: typography.h3 }]}>Description</Text>
 
           <Text style={[styles.description, { color: colors.textPrimary, fontSize: typography.bodySmall }]}>{data.description}</Text>
 
+          {/* Buttons Area */}
           <View style={[styles.buttonContainer, { marginTop: spacing.xl }]}>
             <View style={styles.actionRow}>
               <View style={[styles.cartButtonWrapper, { marginRight: spacing.md }]}>
@@ -180,6 +223,7 @@ const ProductDetailScreen = () => {
         </View>
       </ScrollView>
 
+      {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         visible={showDeleteDialog}
         productName={data?.name}
@@ -193,7 +237,13 @@ const ProductDetailScreen = () => {
 
 export default ProductDetailScreen;
 
+//
+// ======================
+// Styles
+// ======================
+//
 const styles = StyleSheet.create({
+  // -- Layout --
   container: {
     flex: 1,
   },
@@ -202,6 +252,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  
+  // -- Image & Header --
   imageContainer: {
     position: "relative",
     width: "100%",
@@ -223,14 +275,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     borderWidth: 1,
   },
-  pressed: {
-    opacity: 0.75,
-    transform: [{ scale: 0.97 }],
-  },
   image: {
     width: "100%",
     height: "100%",
   },
+  
+  // -- Content Area --
   content: {},
   name: {
     fontWeight: "700",
@@ -241,6 +291,8 @@ const styles = StyleSheet.create({
   price: {
     fontWeight: "700",
   },
+  
+  // -- Info Rows --
   infoContainer: {
     flexDirection: "row",
   },
@@ -251,12 +303,16 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 14,
   },
+  
+  // -- Description --
   descriptionTitle: {
     fontWeight: "700",
   },
   description: {
     lineHeight: 24,
   },
+  
+  // -- Buttons --
   buttonContainer: {},
   actionRow: {
     flexDirection: "row",
@@ -288,5 +344,11 @@ const styles = StyleSheet.create({
   },
   actionBtnText: {
     fontWeight: "600",
+  },
+  
+  // -- Utility --
+  pressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.97 }],
   },
 });

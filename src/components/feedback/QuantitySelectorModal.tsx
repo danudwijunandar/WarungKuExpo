@@ -1,3 +1,8 @@
+//
+// ======================
+// Imports & Dependencies
+// ======================
+//
 import React, { useState } from "react";
 import {
   Modal,
@@ -18,6 +23,13 @@ import { useCartStore } from "@/store/cart.store";
 import { useQuantityModalStore } from "@/store/quantity-modal.store";
 import { useProductById } from "@/modules/product/hooks/useProductById";
 
+//
+// ======================
+// Quantity Selector Modal (Root)
+// ======================
+//
+// Entry point: renders Modal wrapper + delegates content
+// to QuantitySelectorModalContent when product is available.
 export default function QuantitySelectorModal() {
   const { visible, product, closeModal } = useQuantityModalStore();
 
@@ -40,6 +52,11 @@ export default function QuantitySelectorModal() {
   );
 }
 
+//
+// ======================
+// Type Definitions
+// ======================
+//
 interface ContentProps {
   product: {
     id: string;
@@ -51,17 +68,29 @@ interface ContentProps {
   closeModal: () => void;
 }
 
+//
+// ======================
+// Modal Content Component
+// ======================
+//
 function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
   const addToCart = useCartStore((state) => state.addToCart);
   const { colors, spacing, radius, typography } = useTheme();
 
-  // Fetch product detail for fresh stock check (or fallback for items lacking stock info like Favorites)
+  //
+  // ======================
+  // Fetch Product & Stock Logic
+  // ======================
+  //
+  // Fetch product detail for fresh stock check
+  // (atau fallback untuk item yang tidak punya stock info, e.g. Favorites)
   const { data: fetchedProduct, isLoading: isProductLoading } = useProductById(
     product.id
   );
 
   const stockFromProp = product.stock;
   const stockFromFetch = fetchedProduct?.stock;
+  // Prioritas stock: prop > fetched > default 0
   const availableStock =
     stockFromProp !== undefined
       ? stockFromProp
@@ -69,11 +98,16 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
       ? stockFromFetch
       : 0;
 
+  //
+  // ======================
+  // Quantity State & Handlers
+  // ======================
+  //
   const [quantity, setQuantity] = useState(1);
   const [qtyText, setQtyText] = useState("1");
 
+  // Handle input text change - keep raw string in TextInput
   const handleQtyTextChange = (text: string) => {
-    // Keep raw string in input
     setQtyText(text);
 
     if (text === "") {
@@ -89,6 +123,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
     }
   };
 
+  // Validasi dan koreksi quantity saat input blur
   const handleBlur = () => {
     let finalQty = quantity;
     if (quantity < 1 || isNaN(quantity)) {
@@ -100,6 +135,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
     setQtyText(finalQty.toString());
   };
 
+  // Increment quantity (max = available stock)
   const handleIncrement = () => {
     if (quantity < availableStock) {
       const nextQty = quantity + 1;
@@ -108,6 +144,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
     }
   };
 
+  // Decrement quantity (min = 1)
   const handleDecrement = () => {
     if (quantity > 1) {
       const nextQty = quantity - 1;
@@ -116,6 +153,13 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
     }
   };
 
+  //
+  // ======================
+  // Cart Logic
+  // ======================
+  //
+
+  // Handle add product to cart
   const handleConfirm = () => {
     if (isAddDisabled) return;
 
@@ -131,12 +175,22 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
     closeModal();
   };
 
+  //
+  // ======================
+  // Computed Values
+  // ======================
+  //
   const subtotal = product.price * quantity;
   const isStockEmpty = availableStock <= 0;
   const isOverStock = quantity > availableStock;
   const isInvalidQty = quantity < 1 || isNaN(quantity);
   const isAddDisabled = isStockEmpty || isOverStock || isInvalidQty;
 
+  //
+  // ======================
+  // Render
+  // ======================
+  //
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -155,7 +209,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
           ]}
           onPress={(e) => e.stopPropagation()}
         >
-            {/* Header / Product summary */}
+            {/* Header / Product Summary */}
             <View style={styles.header}>
               <Image
                 source={{ uri: product.image }}
@@ -193,7 +247,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
               ]}
             />
 
-            {/* Stock details */}
+            {/* Stock Details */}
             <View style={styles.rowAlign}>
               <Text
                 style={[
@@ -221,7 +275,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
               )}
             </View>
 
-            {/* Quantity Selector Section */}
+            {/* Quantity Selector */}
             <View style={[styles.qtySection, { marginVertical: spacing.md }]}>
               <Text
                 style={[
@@ -233,6 +287,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
               </Text>
 
               <View style={styles.qtySelector}>
+                {/* Decrement Button */}
                 <Pressable
                   disabled={quantity <= 1 || isStockEmpty}
                   style={({ pressed }) => [
@@ -254,6 +309,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
                   />
                 </Pressable>
 
+                {/* Quantity Input */}
                 <TextInput
                   keyboardType="numeric"
                   value={qtyText}
@@ -273,6 +329,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
                   ]}
                 />
 
+                {/* Increment Button */}
                 <Pressable
                   disabled={quantity >= availableStock || isStockEmpty}
                   style={({ pressed }) => [
@@ -300,7 +357,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
               </View>
             </View>
 
-            {/* Warning Message */}
+            {/* Warning Messages */}
             {isStockEmpty && (
               <View style={[styles.warningBox, { backgroundColor: colors.danger + "10", borderRadius: radius.sm, padding: spacing.sm }]}>
                 <Ionicons name="alert-circle" size={16} color={colors.danger} />
@@ -319,7 +376,7 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
               </View>
             )}
 
-            {/* Subtotal section */}
+            {/* Subtotal */}
             <View style={[styles.subtotalRow, { marginTop: spacing.md, marginBottom: spacing.lg }]}>
               <Text style={[styles.subtotalLabel, { color: colors.textPrimary, fontSize: typography.body }]}>
                 Subtotal
@@ -370,7 +427,13 @@ function QuantitySelectorModalContent({ product, closeModal }: ContentProps) {
     );
   }
 
+//
+// ======================
+// Styles
+// ======================
+//
 const styles = StyleSheet.create({
+  // -- Layout --
   keyboardView: {
     flex: 1,
   },
@@ -387,6 +450,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
   },
+
+  // -- Header --
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -410,9 +475,13 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
   },
+
+  // -- Divider --
   divider: {
     height: 1,
   },
+
+  // -- Stock Info --
   rowAlign: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -422,8 +491,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   stockValue: {
-    color: "#111827",
+    // Dynamic color applied inline
   },
+
+  // -- Quantity Selector --
   qtySection: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -449,6 +520,8 @@ const styles = StyleSheet.create({
     padding: 0,
     fontWeight: "600",
   },
+
+  // -- Warning Messages --
   warningBox: {
     flexDirection: "row",
     alignItems: "center",
@@ -459,6 +532,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
   },
+
+  // -- Subtotal --
   subtotalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -470,6 +545,8 @@ const styles = StyleSheet.create({
   subtotalValue: {
     fontWeight: "800",
   },
+
+  // -- Action Buttons --
   actions: {
     flexDirection: "row",
   },
@@ -489,6 +566,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 15,
   },
+
+  // -- State Modifiers --
   pressed: {
     opacity: 0.75,
   },

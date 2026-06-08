@@ -1,16 +1,32 @@
+//
+// ======================
+// Imports & Dependencies
+// ======================
+//
 import React, { useState, useCallback, useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
+
 import { useTheme } from "@/theme";
 import { useHistoryStore } from "@/store/history.store";
 import { useToastStore } from "@/store/toast.store";
 import { formatDateId, formatRupiah } from "../utils/history.utils";
 import DeleteHistoryDialog from "../components/DeleteHistoryDialog";
 
+//
+// ======================
+// History Detail Screen (Main)
+// ======================
+//
 export default function HistoryDetailScreen() {
+  //
+  // ======================
+  // Setup & Hooks
+  // ======================
+  //
   const { id } = useLocalSearchParams();
   const { colors, spacing, radius, typography, shadows } = useTheme();
   
@@ -18,9 +34,19 @@ export default function HistoryDetailScreen() {
   const deleteTransaction = useHistoryStore((s) => s.deleteTransaction);
   const showToast = useToastStore((s) => s.showToast);
 
+  //
+  // ======================
+  // State
+  // ======================
+  //
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  //
+  // ======================
+  // Computed Values
+  // ======================
+  //
   const transaction = useMemo(() => {
     return transactions.find((tx) => tx.id === id);
   }, [transactions, id]);
@@ -53,6 +79,11 @@ export default function HistoryDetailScreen() {
     }
   }, [transaction]);
 
+  //
+  // ======================
+  // Handlers
+  // ======================
+  //
   const handleDelete = useCallback(() => {
     if (!transaction) return;
     setIsDeleting(true);
@@ -66,6 +97,11 @@ export default function HistoryDetailScreen() {
     }, 600);
   }, [transaction, deleteTransaction, showToast]);
 
+  //
+  // ======================
+  // Render Empty State
+  // ======================
+  //
   if (!transaction) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -84,6 +120,11 @@ export default function HistoryDetailScreen() {
     );
   }
 
+  //
+  // ======================
+  // Render
+  // ======================
+  //
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top", "bottom"]}>
       {/* Header */}
@@ -203,7 +244,13 @@ export default function HistoryDetailScreen() {
   );
 }
 
+//
+// ======================
+// Styles
+// ======================
+//
 const styles = StyleSheet.create({
+  // -- Layout --
   container: {
     flex: 1,
   },
@@ -212,6 +259,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  
+  // -- Header --
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -230,6 +279,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontWeight: "700",
   },
+  
+  // -- Card --
   card: {
     borderWidth: 1,
     borderColor: "transparent",
@@ -250,6 +301,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.06)",
     marginVertical: 12,
   },
+  
+  // -- Info Rows --
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -259,6 +312,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   infoValue: {},
+  
+  // -- Product Row --
   productRow: {
     flexDirection: "row",
     marginBottom: 12,
@@ -272,12 +327,16 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     justifyContent: "center",
   },
+  
+  // -- Payment Info --
   paymentRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginVertical: 4,
   },
+  
+  // -- Buttons --
   deleteButton: {
     flexDirection: "row",
     justifyContent: "center",

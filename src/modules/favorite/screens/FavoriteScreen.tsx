@@ -5,6 +5,7 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useFavorite } from "../hooks/use-favorite";
+// eslint-disable-next-line import/no-named-as-default
 import FavoriteProductCard from "../components/FavoriteProductCard";
 import { useTheme } from "@/theme";
 import { useToastStore } from "@/store/toast.store";

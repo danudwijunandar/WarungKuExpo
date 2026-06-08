@@ -18,7 +18,7 @@ export default function Toast() {
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [visible]);
+  }, [visible, hideToast]);
 
   if (!visible) return null;
 

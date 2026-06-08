@@ -1,3 +1,8 @@
+//
+// ======================
+// Imports & Dependencies
+// ======================
+//
 import { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,19 +14,39 @@ import { useTheme } from "@/theme";
 import SettingItem from "../components/SettingItem";
 import SettingSection from "../components/SettingSection";
 
+//
+// ======================
+// Settings Screen (Main)
+// ======================
+//
 export default function SettingsScreen() {
+  //
+  // ======================
+  // Setup & Hooks
+  // ======================
+  //
+  const { colors, spacing, radius, typography } = useTheme();
+  
   const showToast = useToastStore((state) => state.showToast);
   const isEditMode = useEditModeStore((state) => state.isEditMode);
   const setEditMode = useEditModeStore((state) => state.setEditMode);
-
-  const { colors, spacing, radius, typography } = useTheme();
 
   // Connect directly to persisted theme store
   const darkMode = useThemeStore((state) => state.darkMode);
   const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
 
+  //
+  // ======================
+  // State
+  // ======================
+  //
   const [notifications, setNotifications] = useState(true);
 
+  //
+  // ======================
+  // Handlers
+  // ======================
+  //
   const handleResetCache = () => {
     Alert.alert(
       "Bersihkan Cache?",
@@ -84,11 +109,17 @@ export default function SettingsScreen() {
     );
   };
 
+  //
+  // ======================
+  // Render
+  // ======================
+  //
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
       edges={["top"]}
     >
+      {/* Header */}
       <View
         style={[
           styles.header,
@@ -110,6 +141,7 @@ export default function SettingsScreen() {
         </Text>
       </View>
 
+      {/* Content */}
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -254,17 +286,27 @@ export default function SettingsScreen() {
   );
 }
 
+//
+// ======================
+// Styles
+// ======================
+//
 const styles = StyleSheet.create({
+  // -- Layout --
   container: {
     flex: 1,
-  },
-  header: {},
-  headerTitle: {
-    fontWeight: "700",
   },
   scrollContent: {
     paddingBottom: 100,
   },
+  
+  // -- Header --
+  header: {},
+  headerTitle: {
+    fontWeight: "700",
+  },
+  
+  // -- Profile Card --
   profileCard: {
     flexDirection: "row",
     alignItems: "center",

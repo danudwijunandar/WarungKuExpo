@@ -1,3 +1,8 @@
+//
+// ======================
+// Imports & Dependencies
+// ======================
+//
 import React, { useState, useCallback } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link, useRouter } from "expo-router";
@@ -9,11 +14,22 @@ import { useQuantityModalStore } from "@/store/quantity-modal.store";
 import { useDeleteProduct } from "@/modules/product/hooks/useDeleteProduct";
 import DeleteConfirmDialog from "@/components/feedback/DeleteConfirmDialog";
 
+//
+// ======================
+// Layout Constants
+// ======================
+//
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const CARD_MARGIN = 6;
 const CONTAINER_PADDING = 16;
+// Hitung lebar card agar 2 kolom muat dalam grid
 const CARD_WIDTH = (SCREEN_WIDTH - CONTAINER_PADDING * 2 - CARD_MARGIN * 2) / 2;
 
+//
+// ======================
+// Type Definitions
+// ======================
+//
 interface Props {
   id: string;
   title: string;
@@ -22,6 +38,11 @@ interface Props {
   stock?: number;
 }
 
+//
+// ======================
+// Product Card Component
+// ======================
+//
 const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock }) => {
   const router = useRouter();
   const { colors, spacing, radius, shadows, isEditMode } = useTheme();
@@ -30,6 +51,16 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  // Validasi stock product
+  const isOutOfStock = stock !== undefined && stock <= 0;
+
+  //
+  // ======================
+  // Event Handlers
+  // ======================
+  //
+
+  // Handle delete product via API
   const handleDelete = useCallback(() => {
     deleteProduct(id, {
       onSuccess: () => setShowDeleteDialog(false),
@@ -37,13 +68,17 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
     });
   }, [id, deleteProduct]);
 
+  // Handle open quantity modal untuk add to cart
   const handleOpenQuantityModal = useCallback((e: any) => {
     e.stopPropagation();
     openModal({ id, title, image, price, stock });
   }, [id, title, image, price, stock, openModal]);
 
-  const isOutOfStock = stock !== undefined && stock <= 0;
-
+  //
+  // ======================
+  // Render
+  // ======================
+  //
   return (
     <>
       <Link
@@ -54,12 +89,13 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
         asChild
       >
         <Pressable style={StyleSheet.flatten([styles.card, { width: CARD_WIDTH, backgroundColor: colors.card, borderRadius: radius.md, marginBottom: spacing.md, ...shadows.md }])}>
-          {/* Delete badge in edit mode */}
+          {/* Badge Edit & Delete (hanya tampil di edit mode) */}
           {isEditMode && (
             <View style={styles.actionBadges}>
+              {/* Navigate ke halaman edit product */}
               <Pressable
                 style={({ pressed }) => [
-                  styles.editButton,
+                  styles.actionBadgeButton,
                   { backgroundColor: colors.primary },
                   pressed && styles.pressed,
                 ]}
@@ -74,10 +110,11 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
               >
                 <Ionicons name="pencil" size={11} color={colors.white} />
               </Pressable>
-              
+
+              {/* Trigger delete confirmation dialog */}
               <Pressable
                 style={({ pressed }) => [
-                  styles.deleteButton,
+                  styles.actionBadgeButton,
                   { backgroundColor: colors.danger },
                   pressed && styles.pressed,
                 ]}
@@ -92,6 +129,7 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
             </View>
           )}
 
+          {/* Product Image */}
           <Image
             source={{ uri: image }}
             style={styles.image}
@@ -99,6 +137,7 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
             transition={200}
           />
 
+          {/* Product Info: Title, Stock, Price, Cart Button */}
           <View style={[styles.content, { padding: spacing.sm + 2 }]}>
             <View>
               <Text numberOfLines={2} style={[styles.title, { color: colors.textPrimary }]}>
@@ -116,6 +155,7 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
                 Rp {price.toLocaleString("id-ID")}
               </Text>
 
+              {/* Cart button: disabled ketika stok habis */}
               <Pressable
                 style={[
                   styles.cartButton,
@@ -131,6 +171,7 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
         </Pressable>
       </Link>
 
+      {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         visible={showDeleteDialog}
         productName={title}
@@ -142,12 +183,23 @@ const ProductCardComponent: React.FC<Props> = ({ id, title, image, price, stock 
   );
 };
 
+//
+// ======================
+// Memoization & Export
+// ======================
+//
 export const ProductCard = React.memo(ProductCardComponent);
 ProductCard.displayName = "ProductCard";
 
 export default ProductCard;
 
+//
+// ======================
+// Styles
+// ======================
+//
 const styles = StyleSheet.create({
+  // -- Card Layout --
   card: {
     marginHorizontal: CARD_MARGIN / 2,
     overflow: "hidden",
@@ -160,6 +212,8 @@ const styles = StyleSheet.create({
     minHeight: 105,
     justifyContent: "space-between",
   },
+
+  // -- Typography --
   title: {
     fontSize: 13,
     fontWeight: "600",
@@ -171,15 +225,17 @@ const styles = StyleSheet.create({
     marginTop: 3,
     letterSpacing: 0.1,
   },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   price: {
     flex: 1,
     fontSize: 14,
     fontWeight: "700",
+  },
+
+  // -- Footer & Actions --
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   cartButton: {
     width: 34,
@@ -188,6 +244,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
+  // -- Edit Mode Badges --
   actionBadges: {
     position: "absolute",
     top: 6,
@@ -196,7 +254,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 4,
   },
-  deleteButton: {
+  // Deduplicated: editButton & deleteButton shared identical styles
+  actionBadgeButton: {
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -208,18 +267,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
-  editButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
+
+  // -- Press State --
   pressed: {
     transform: [{ scale: 0.92 }],
     opacity: 0.8,

@@ -1,3 +1,8 @@
+//
+// ======================
+// Imports & Dependencies
+// ======================
+//
 import React, { useState, useCallback } from "react";
 import {
   Alert,
@@ -13,11 +18,22 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 
 import { useCart } from "../hooks/use-cart";
+// eslint-disable-next-line import/no-named-as-default
 import CartItemCard from "../components/CartItemCard";
 import { useToastStore } from "@/store/toast.store";
 import { useTheme } from "@/theme";
 
+//
+// ======================
+// Cart Screen (Main)
+// ======================
+//
 export default function CartScreen() {
+  //
+  // ======================
+  // Setup & Hooks
+  // ======================
+  //
   const {
     items,
     selectedCount,
@@ -34,11 +50,29 @@ export default function CartScreen() {
 
   const { colors, spacing, radius, typography, shadows } = useTheme();
   const showToast = useToastStore((s) => s.showToast);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  
+  //
+  // ======================
+  // State
+  // ======================
+  //
+  const [isCheckingOut] = useState(false);
 
+  //
+  // ======================
+  // Computed Values
+  // ======================
+  //
   const hasItems = items.length > 0;
   const hasSelection = selectedCount > 0;
 
+  //
+  // ======================
+  // Handlers
+  // ======================
+  //
+
+  // Kosongkan keranjang dengan konfirmasi
   const handleClearCart = useCallback(() => {
     Alert.alert(
       "Kosongkan Keranjang?",
@@ -57,11 +91,19 @@ export default function CartScreen() {
     );
   }, [clearCart, showToast]);
 
+  // Navigate ke checkout page jika ada item terpilih
   const handleCheckout = useCallback(() => {
     if (!hasSelection) return;
     router.push("/checkout");
   }, [hasSelection]);
 
+  //
+  // ======================
+  // Render Helpers
+  // ======================
+  //
+
+  // Render individual cart item card
   const renderCartItem = useCallback(({ item }: { item: any }) => (
     <CartItemCard
       item={item}
@@ -76,6 +118,7 @@ export default function CartScreen() {
     />
   ), [isSelected, toggleSelection, increaseQty, decreaseQty, removeFromCart, showToast]);
 
+  // Render komponen saat keranjang kosong
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <View style={[styles.emptyIconWrapper, { backgroundColor: colors.card, ...shadows.sm }]}>
@@ -90,17 +133,32 @@ export default function CartScreen() {
     </View>
   );
 
+  //
+  // ======================
+  // Render
+  // ======================
+  //
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
-      {/* HEADER */}
+      
+      {/* Header Section */}
       <View style={[styles.header, { paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.sm }]}>
-        <View>
-          <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.h1 }]}>Keranjang</Text>
-          {hasItems && (
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {items.length} barang · {selectedCount} dipilih
-            </Text>
-          )}
+        <View style={styles.headerTitleRow}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, marginRight: spacing.sm })}
+          >
+            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
+          </Pressable>
+          <View>
+            <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.h1 }]}>Keranjang</Text>
+            {hasItems && (
+               <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                 {items.length} barang · {selectedCount} dipilih
+               </Text>
+            )}
+          </View>
         </View>
         {hasItems && (
           <Pressable style={[styles.clearBtn, { borderColor: colors.danger, borderRadius: radius.sm }]} onPress={handleClearCart}>
@@ -109,10 +167,21 @@ export default function CartScreen() {
         )}
       </View>
 
-      {/* SELECT ALL BAR */}
+      {/* Select All Bar */}
       {hasItems && (
         <Pressable
-          style={[styles.selectAllBar, { marginHorizontal: spacing.md, marginBottom: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, backgroundColor: colors.card, borderRadius: radius.md, borderColor: colors.border }]}
+          style={[
+            styles.selectAllBar, 
+            { 
+              marginHorizontal: spacing.md, 
+              marginBottom: spacing.sm, 
+              paddingVertical: spacing.sm, 
+              paddingHorizontal: spacing.md, 
+              backgroundColor: colors.card, 
+              borderRadius: radius.md, 
+              borderColor: colors.border 
+            }
+          ]}
           onPress={toggleSelectAll}
         >
           <View style={[styles.checkbox, { borderColor: colors.border, backgroundColor: isAllSelected ? colors.primary : colors.card }]}>
@@ -131,7 +200,7 @@ export default function CartScreen() {
         </Pressable>
       )}
 
-      {/* LIST */}
+      {/* Cart List */}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
@@ -149,9 +218,18 @@ export default function CartScreen() {
         renderItem={renderCartItem}
       />
 
-      {/* STICKY FOOTER */}
+      {/* Sticky Footer */}
       {hasItems && (
-        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.lg }]}>
+        <View style={[
+          styles.footer, 
+          { 
+            backgroundColor: colors.card, 
+            borderTopColor: colors.border, 
+            paddingHorizontal: spacing.md, 
+            paddingTop: spacing.md, 
+            paddingBottom: spacing.lg 
+          }
+        ]}>
           <View style={[styles.totalArea, { marginRight: spacing.md }]}>
             <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
               Total {hasSelection ? `(${selectedCount} barang)` : ""}
@@ -186,13 +264,25 @@ export default function CartScreen() {
   );
 }
 
+//
+// ======================
+// Styles
+// ======================
+//
 const styles = StyleSheet.create({
+  // -- Layout --
   safeArea: {
     flex: 1,
   },
+  
+  // -- Header --
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+  },
+  headerTitleRow: {
+    flexDirection: "row",
     alignItems: "center",
   },
   title: {
@@ -211,6 +301,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
+  
+  // -- Select All Bar --
   selectAllBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -236,10 +328,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
+  
+  // -- List --
   listContent: {},
   listContentEmpty: {
     flex: 1,
   },
+  
+  // -- Empty State --
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -264,6 +360,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
   },
+  
+  // -- Footer --
   footer: {
     position: "absolute",
     bottom: 0,

@@ -12,13 +12,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
+// eslint-disable-next-line import/no-named-as-default
 import ProductCard from "@/components/cards/ProductCard";
 import { useProductsByCategory } from "../hooks/useProductsByCategory";
 import { useTheme } from "@/theme";
 
 const ProductsByCategoryScreen = () => {
   const { id, name } = useLocalSearchParams();
-  const { colors, spacing, radius, typography } = useTheme();
+  const { colors, spacing, typography } = useTheme();
 
   const { data, isLoading, refetch, isRefetching } = useProductsByCategory(
     id as string,

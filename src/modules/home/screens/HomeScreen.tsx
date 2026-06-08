@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import CartIconButton from "@/components/buttons/CartIconButton";
 // eslint-disable-next-line import/no-named-as-default
 import ProductCard from "@/components/cards/ProductCard";
 import SearchBar from "@/components/inputs/SearchBar";
@@ -95,26 +96,29 @@ export default function HomeScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <View style={[styles.header, { marginTop: spacing.md }]}>
-        <Text
-          style={[
-            styles.greeting,
-            { color: colors.textSecondary, fontSize: typography.body },
-          ]}
-        >
-          Hello Ical
-        </Text>
-        <Text
-          style={[
-            styles.title,
-            {
-              color: colors.textPrimary,
-              fontSize: typography.h1,
-              marginTop: spacing.xs,
-            },
-          ]}
-        >
-          WarungKu
-        </Text>
+        <View style={styles.headerLeft}>
+          <Text
+            style={[
+              styles.greeting,
+              { color: colors.textSecondary, fontSize: typography.body },
+            ]}
+          >
+            Hello Ical
+          </Text>
+          <Text
+            style={[
+              styles.title,
+              {
+                color: colors.textPrimary,
+                fontSize: typography.h1,
+                marginTop: spacing.xs,
+              },
+            ]}
+          >
+            WarungKu
+          </Text>
+        </View>
+        <CartIconButton size={26} />
       </View>
 
       <SearchBar
@@ -199,7 +203,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  header: {},
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  headerLeft: {
+    flex: 1,
+  },
   greeting: {},
   title: {
     fontWeight: "700",

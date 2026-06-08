@@ -2,6 +2,7 @@ import axios from "axios";
 import { ENV } from "@/config/env";
 import { setupInterceptors } from "./interceptors";
 
+// eslint-disable-next-line import/no-named-as-default-member
 const axiosInstance = axios.create({
   baseURL: ENV.API_URL,
   headers: {
