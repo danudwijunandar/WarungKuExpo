@@ -51,6 +51,16 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
+        name="history"
+        options={{
+          title: "History",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="time" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
@@ -62,7 +72,6 @@ export default function TabsLayout() {
 
       {/* Hidden from tab bar — accessed via stack navigation */}
       <Tabs.Screen name="cart" options={{ href: null }} />
-      <Tabs.Screen name="history" options={{ href: null }} />
     </Tabs>
   );
 }

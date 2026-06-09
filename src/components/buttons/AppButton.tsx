@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text } from "react-native";
 import { useTheme } from "@/theme";
+import { Pressable, StyleSheet, Text } from "react-native";
 
 interface Props {
   title: string;
@@ -51,4 +51,3 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
 });
-
