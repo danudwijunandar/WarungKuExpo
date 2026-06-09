@@ -3,14 +3,17 @@
 // Imports & Dependencies
 // ======================
 //
-import { useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState, useCallback } from "react";
+import { Alert, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 import { useEditModeStore } from "@/store/edit-mode.store";
 import { useThemeStore } from "@/store/theme.store";
 import { useToastStore } from "@/store/toast.store";
 import { useTheme } from "@/theme";
+import { useProfile } from "@/modules/profile/hooks/useProfile";
+import ProfileAvatar from "@/modules/profile/components/ProfileAvatar";
 import SettingItem from "../components/SettingItem";
 import SettingSection from "../components/SettingSection";
 
@@ -26,6 +29,7 @@ export default function SettingsScreen() {
   // ======================
   //
   const { colors, spacing, radius, typography } = useTheme();
+  const router = useRouter();
   
   const showToast = useToastStore((state) => state.showToast);
   const isEditMode = useEditModeStore((state) => state.isEditMode);
@@ -34,6 +38,9 @@ export default function SettingsScreen() {
   // Connect directly to persisted theme store
   const darkMode = useThemeStore((state) => state.darkMode);
   const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
+
+  // Get profile data from profile store
+  const { user } = useProfile();
 
   //
   // ======================
@@ -47,7 +54,13 @@ export default function SettingsScreen() {
   // Handlers
   // ======================
   //
-  const handleResetCache = () => {
+  const handleViewProfile = useCallback(() => {
+    router.push("/profile");
+  }, [router]);
+
+  const handleEditProfile = useCallback(() => {
+    router.push("/profile/edit");
+  }, [router]);
     Alert.alert(
       "Bersihkan Cache?",
       "Tindakan ini akan menghapus data cache lokal aplikasi. Apakah Anda yakin?",
@@ -151,41 +164,42 @@ export default function SettingsScreen() {
       >
         {/* Section 1: Profile */}
         <SettingSection title="Profil">
-          <View
+          <Pressable
+            onPress={handleViewProfile}
             style={[
               styles.profileCard,
               {
                 padding: spacing.md,
                 backgroundColor: colors.card,
                 borderBottomColor: colors.border + "30",
+                flexDirection: "row",
+                alignItems: "center",
               },
             ]}
           >
-            <View
-              style={[
-                styles.avatar,
-                { backgroundColor: colors.primary, borderRadius: radius.full },
-              ]}
-            >
-              <Text style={styles.avatarText}>IC</Text>
-            </View>
-            <View style={[styles.profileInfo, { marginLeft: spacing.md }]}>
+            <ProfileAvatar
+              photoUrl={user?.photoUrl || null}
+              name={user?.name || "User"}
+              size="md"
+              editable={false}
+            />
+            <View style={[styles.profileInfo, { marginLeft: spacing.md, flex: 1 }]}>
               <Text style={[styles.profileName, { color: colors.textPrimary }]}>
-                Ical
+                {user?.name || "Loading..."}
               </Text>
               <Text
                 style={[styles.profileEmail, { color: colors.textSecondary }]}
               >
-                ical@warungku.com
+                {user?.email || "..."}
               </Text>
             </View>
-          </View>
+          </Pressable>
           <SettingItem
             icon="person-outline"
             iconColor={colors.primary}
             title="Edit Profil"
-            subtitle="Perbarui info nama, email, dan telepon"
-            onPress={() => handleDummyAction("Edit Profil")}
+            subtitle="Perbarui info nama, email, dan foto"
+            onPress={handleEditProfile}
             hideBorder
           />
         </SettingSection>
