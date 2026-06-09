@@ -3,17 +3,24 @@
 // Imports & Dependencies
 // ======================
 //
-import { useState, useCallback } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+    Alert,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import ProfileAvatar from "@/modules/profile/components/ProfileAvatar";
+import { useProfile } from "@/modules/profile/hooks/useProfile";
 import { useEditModeStore } from "@/store/edit-mode.store";
 import { useThemeStore } from "@/store/theme.store";
 import { useToastStore } from "@/store/toast.store";
 import { useTheme } from "@/theme";
-import { useProfile } from "@/modules/profile/hooks/useProfile";
-import ProfileAvatar from "@/modules/profile/components/ProfileAvatar";
 import SettingItem from "../components/SettingItem";
 import SettingSection from "../components/SettingSection";
 
@@ -30,7 +37,7 @@ export default function SettingsScreen() {
   //
   const { colors, spacing, radius, typography } = useTheme();
   const router = useRouter();
-  
+
   const showToast = useToastStore((state) => state.showToast);
   const isEditMode = useEditModeStore((state) => state.isEditMode);
   const setEditMode = useEditModeStore((state) => state.setEditMode);
@@ -61,6 +68,8 @@ export default function SettingsScreen() {
   const handleEditProfile = useCallback(() => {
     router.push("/profile/edit");
   }, [router]);
+
+  const handleResetCache = () => {
     Alert.alert(
       "Bersihkan Cache?",
       "Tindakan ini akan menghapus data cache lokal aplikasi. Apakah Anda yakin?",
@@ -183,7 +192,9 @@ export default function SettingsScreen() {
               size="md"
               editable={false}
             />
-            <View style={[styles.profileInfo, { marginLeft: spacing.md, flex: 1 }]}>
+            <View
+              style={[styles.profileInfo, { marginLeft: spacing.md, flex: 1 }]}
+            >
               <Text style={[styles.profileName, { color: colors.textPrimary }]}>
                 {user?.name || "Loading..."}
               </Text>
@@ -313,13 +324,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 100,
   },
-  
+
   // -- Header --
   header: {},
   headerTitle: {
     fontWeight: "700",
   },
-  
+
   // -- Profile Card --
   profileCard: {
     flexDirection: "row",

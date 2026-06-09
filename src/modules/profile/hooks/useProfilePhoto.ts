@@ -56,7 +56,7 @@ export const useProfilePhoto = () => {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [1, 1], // Square aspect ratio for avatar
         quality: 0.8,
