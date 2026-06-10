@@ -22,6 +22,9 @@ import { useCategories } from "@/modules/categories/hooks/useCategories";
 import { productSchema } from "@/schemas/product.schema";
 import { useTheme } from "@/theme";
 import { useCreateProduct } from "../hooks/useCreateProduct";
+import { useImageUpload } from "../hooks/useImageUpload";
+import { ImagePickerComponent } from "../components/ImagePickerComponent";
+import { useToastStore } from "@/store/toast.store";
 
 //
 // ======================
@@ -37,6 +40,17 @@ export default function AddProductScreen() {
   const { colors, spacing, radius, typography } = useTheme();
   const { mutate: createProduct, isPending } = useCreateProduct();
   const { data: categories, isLoading: isLoadingCategories } = useCategories();
+  const showToast = useToastStore((state) => state.showToast);
+  const {
+    imageUri,
+    imageName,
+    isLoading: isUploadingImage,
+    error: imageError,
+    pickImage,
+    uploadImage,
+    clearImage,
+    clearError,
+  } = useImageUpload();
 
   //
   // ======================
@@ -69,9 +83,32 @@ export default function AddProductScreen() {
   // Handlers
   // ======================
   //
+  const handlePickImage = async () => {
+    clearError();
+    const pickedImage = await pickImage();
+
+    if (!pickedImage) return;
+
+    // Upload image to ImgBB
+    const uploadedUrl = await uploadImage(pickedImage);
+
+    if (uploadedUrl) {
+      setValue("image", uploadedUrl, { shouldValidate: true });
+      showToast("Gambar berhasil diupload", "success");
+    } else {
+      showToast("Gagal upload gambar", "error");
+    }
+  };
+
   const onSubmit = (data: any) => {
+    if (!data.image) {
+      showToast("Silakan upload gambar produk terlebih dahulu", "error");
+      return;
+    }
+
     createProduct(data, {
       onSuccess: () => {
+        clearImage();
         router.back();
       },
     });
@@ -233,13 +270,30 @@ export default function AddProductScreen() {
             label="Tanggal Kedaluwarsa (YYYY-MM-DD)"
             placeholder="Contoh: 2027-12-31"
           />
-          <FormField
-            control={control}
-            name="image"
-            label="URL Gambar Produk"
-            placeholder="Masukkan URL gambar dari Unsplash/Web"
-            autoCapitalize="none"
+
+          {/* Image Picker */}
+          <ImagePickerComponent
+            imageUri={imageUri}
+            imageName={imageName}
+            isLoading={isUploadingImage}
+            error={imageError}
+            onPickImage={handlePickImage}
+            onClearImage={clearImage}
           />
+          {errors.image && (
+            <Text
+              style={{
+                color: colors.danger,
+                marginBottom: spacing.sm,
+                fontSize: typography.caption,
+                fontWeight: "500",
+              }}
+            >
+              {errors.image.message as string}
+            </Text>
+          )}
+
+          {/* Detail Fields */}
           <FormField
             control={control}
             name="description"
@@ -256,15 +310,15 @@ export default function AddProductScreen() {
               style={[
                 styles.submitButton,
                 {
-                  backgroundColor: colors.primary,
+                  backgroundColor: isPending || isUploadingImage ? colors.border : colors.primary,
                   borderRadius: radius.md,
                   paddingVertical: spacing.md,
                 },
               ]}
               onPress={handleSubmit(onSubmit)}
-              disabled={isPending}
+              disabled={isPending || isUploadingImage}
             >
-              {isPending ? (
+              {isPending || isUploadingImage ? (
                 <ActivityIndicator size="small" color={colors.white} />
               ) : (
                 <Text

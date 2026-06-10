@@ -7,6 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "warungku",
     "userInterfaceStyle": "automatic",
+    "permissions": ["READ_EXTERNAL_STORAGE"],
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -17,7 +18,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["READ_EXTERNAL_STORAGE"]
     },
     "web": {
       "output": "static",

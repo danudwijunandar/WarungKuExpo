@@ -21,7 +21,7 @@ export const productSchema = z.object({
     .refine(isValidDateString, {
       message: "Format tanggal kedaluwarsa harus YYYY-MM-DD dan valid",
     }),
-  image: z.string().min(1, "URL Gambar harus diisi").url("Format URL gambar tidak valid"),
+  image: z.string().min(1, "Gambar harus dipilih dan diupload"),
   description: z.string().min(10, "Deskripsi minimal harus 10 karakter"),
 });
 

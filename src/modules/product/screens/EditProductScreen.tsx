@@ -6,7 +6,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -24,6 +24,9 @@ import { productSchema } from "@/schemas/product.schema";
 import { useTheme } from "@/theme";
 import { useProductById } from "../hooks/useProductById";
 import { useUpdateProduct } from "../hooks/useUpdateProduct";
+import { useImageUpload } from "../hooks/useImageUpload";
+import { ImagePickerComponent } from "../components/ImagePickerComponent";
+import { useToastStore } from "@/store/toast.store";
 
 //
 // ======================
@@ -44,6 +47,18 @@ export default function EditProductScreen() {
   );
   const { mutate: updateProduct, isPending } = useUpdateProduct();
   const { data: categories, isLoading: isLoadingCategories } = useCategories();
+  const showToast = useToastStore((state) => state.showToast);
+  const {
+    imageUri,
+    imageName,
+    isLoading: isUploadingImage,
+    error: imageError,
+    pickImage,
+    uploadImage,
+    clearImage,
+    clearError,
+  } = useImageUpload();
+  const [hasImageChanged, setHasImageChanged] = useState(false);
 
   //
   // ======================
@@ -83,11 +98,30 @@ export default function EditProductScreen() {
   // Handlers
   // ======================
   //
+  const handlePickImage = async () => {
+    clearError();
+    const pickedImage = await pickImage();
+
+    if (!pickedImage) return;
+
+    const uploadedUrl = await uploadImage(pickedImage);
+
+    if (uploadedUrl) {
+      setValue("image", uploadedUrl, { shouldValidate: true });
+      setHasImageChanged(true);
+      showToast("Gambar berhasil diupload", "success");
+    } else {
+      showToast("Gagal upload gambar", "error");
+    }
+  };
+
   const onSubmit = (data: any) => {
     updateProduct(
       { id: id as string, ...data },
       {
         onSuccess: () => {
+          clearImage();
+          setHasImageChanged(false);
           router.back();
         },
       },
@@ -247,6 +281,28 @@ export default function EditProductScreen() {
             </Text>
           )}
 
+          {/* Image Picker */}
+          <ImagePickerComponent
+            imageUri={imageUri}
+            imageName={imageName}
+            isLoading={isUploadingImage}
+            error={imageError}
+            onPickImage={handlePickImage}
+            onClearImage={clearImage}
+          />
+          {!hasImageChanged && errors.image && (
+            <Text
+              style={{
+                color: colors.danger,
+                marginBottom: spacing.sm,
+                fontSize: typography.caption,
+                fontWeight: "500",
+              }}
+            >
+              {errors.image.message as string}
+            </Text>
+          )}
+
           {/* Detail Fields */}
           <FormField
             control={control}
@@ -270,13 +326,6 @@ export default function EditProductScreen() {
           />
           <FormField
             control={control}
-            name="image"
-            label="URL Gambar Produk"
-            placeholder="Masukkan URL gambar dari Unsplash/Web"
-            autoCapitalize="none"
-          />
-          <FormField
-            control={control}
             name="description"
             label="Deskripsi Produk"
             placeholder="Deskripsikan detail produk ini..."
@@ -291,15 +340,15 @@ export default function EditProductScreen() {
               style={[
                 styles.submitButton,
                 {
-                  backgroundColor: colors.primary,
+                  backgroundColor: isPending || isUploadingImage ? colors.border : colors.primary,
                   borderRadius: radius.md,
                   paddingVertical: spacing.md,
                 },
               ]}
               onPress={handleSubmit(onSubmit)}
-              disabled={isPending}
+              disabled={isPending || isUploadingImage}
             >
-              {isPending ? (
+              {isPending || isUploadingImage ? (
                 <ActivityIndicator size="small" color={colors.white} />
               ) : (
                 <Text
