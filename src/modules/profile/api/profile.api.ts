@@ -5,11 +5,11 @@
 //
 
 import {
-    PhotoMetadata,
-    Profile,
-    UpdateProfileRequest,
-    User,
-    UserStats,
+  PhotoMetadata,
+  Profile,
+  UpdateProfileRequest,
+  User,
+  UserStats,
 } from "@/types/profile";
 
 /**

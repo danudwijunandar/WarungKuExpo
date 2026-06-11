@@ -18,6 +18,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { FormField } from "@/components/inputs/FormField";
+import { FormFieldWithPrice } from "@/components/inputs/FormFieldWithPrice";
+import { DatePickerField } from "@/components/inputs/DatePickerField";
 import { useCategories } from "@/modules/categories/hooks/useCategories";
 import { productSchema } from "@/schemas/product.schema";
 import { useTheme } from "@/theme";
@@ -250,12 +252,11 @@ export default function AddProductScreen() {
           )}
 
           {/* Detail Fields */}
-          <FormField
+          <FormFieldWithPrice
             control={control}
             name="price"
             label="Harga (Rp)"
             placeholder="Contoh: 15000"
-            keyboardType="numeric"
           />
           <FormField
             control={control}
@@ -264,11 +265,10 @@ export default function AddProductScreen() {
             placeholder="Contoh: 50"
             keyboardType="numeric"
           />
-          <FormField
+          <DatePickerField
             control={control}
             name="expiredDate"
-            label="Tanggal Kedaluwarsa (YYYY-MM-DD)"
-            placeholder="Contoh: 2027-12-31"
+            label="Tanggal Kedaluwarsa"
           />
 
           {/* Image Picker */}
