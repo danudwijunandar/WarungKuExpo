@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useSafeTabBarHeight } from "@/hooks/useSafeTabBarHeight";
 import ProfileAvatar from "@/modules/profile/components/ProfileAvatar";
 import { useProfile } from "@/modules/profile/hooks/useProfile";
 import { useEditModeStore } from "@/store/edit-mode.store";
@@ -36,6 +37,7 @@ export default function SettingsScreen() {
   // ======================
   //
   const { colors, spacing, radius, typography } = useTheme();
+  const { contentBottomPadding } = useSafeTabBarHeight();
   const router = useRouter();
 
   const showToast = useToastStore((state) => state.showToast);
@@ -168,7 +170,10 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingHorizontal: spacing.md },
+          {
+            paddingHorizontal: spacing.md,
+            paddingBottom: contentBottomPadding,
+          },
         ]}
       >
         {/* Section 1: Profile */}
@@ -322,7 +327,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100,
+    // paddingBottom calculated dynamically in component based on safe area
   },
 
   // -- Header --

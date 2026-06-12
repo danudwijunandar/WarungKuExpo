@@ -3,25 +3,25 @@
 // Imports & Dependencies
 // ======================
 //
-import React, { useState, useCallback } from "react";
-import {
-  Alert,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  ActivityIndicator,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+    ActivityIndicator,
+    Alert,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useCart } from "../hooks/use-cart";
 // eslint-disable-next-line import/no-named-as-default
-import CartItemCard from "../components/CartItemCard";
+import { SafeFlatListContainer } from "@/components/wrappers";
 import { useToastStore } from "@/store/toast.store";
 import { useTheme } from "@/theme";
+import CartItemCard from "../components/CartItemCard";
 
 //
 // ======================
@@ -50,7 +50,7 @@ export default function CartScreen() {
 
   const { colors, spacing, radius, typography, shadows } = useTheme();
   const showToast = useToastStore((s) => s.showToast);
-  
+
   //
   // ======================
   // State
@@ -87,7 +87,7 @@ export default function CartScreen() {
             showToast("Keranjang berhasil dikosongkan", "success");
           },
         },
-      ]
+      ],
     );
   }, [clearCart, showToast]);
 
@@ -104,27 +104,51 @@ export default function CartScreen() {
   //
 
   // Render individual cart item card
-  const renderCartItem = useCallback(({ item }: { item: any }) => (
-    <CartItemCard
-      item={item}
-      selected={isSelected(item.id)}
-      onToggleSelect={() => toggleSelection(item.id)}
-      onIncrease={() => increaseQty(item.id)}
-      onDecrease={() => decreaseQty(item.id)}
-      onDelete={() => {
-        removeFromCart(item.id);
-        showToast("Barang dihapus dari keranjang", "success");
-      }}
-    />
-  ), [isSelected, toggleSelection, increaseQty, decreaseQty, removeFromCart, showToast]);
+  const renderCartItem = useCallback(
+    ({ item }: { item: any }) => (
+      <CartItemCard
+        item={item}
+        selected={isSelected(item.id)}
+        onToggleSelect={() => toggleSelection(item.id)}
+        onIncrease={() => increaseQty(item.id)}
+        onDecrease={() => decreaseQty(item.id)}
+        onDelete={() => {
+          removeFromCart(item.id);
+          showToast("Barang dihapus dari keranjang", "success");
+        }}
+      />
+    ),
+    [
+      isSelected,
+      toggleSelection,
+      increaseQty,
+      decreaseQty,
+      removeFromCart,
+      showToast,
+    ],
+  );
 
   // Render komponen saat keranjang kosong
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <View style={[styles.emptyIconWrapper, { backgroundColor: colors.card, ...shadows.sm }]}>
+      <View
+        style={[
+          styles.emptyIconWrapper,
+          { backgroundColor: colors.card, ...shadows.sm },
+        ]}
+      >
         <Ionicons name="cart-outline" size={60} color={colors.textSecondary} />
       </View>
-      <Text style={[styles.emptyTitle, { color: colors.textPrimary, fontSize: typography.h3, marginBottom: spacing.xs }]}>
+      <Text
+        style={[
+          styles.emptyTitle,
+          {
+            color: colors.textPrimary,
+            fontSize: typography.h3,
+            marginBottom: spacing.xs,
+          },
+        ]}
+      >
         Keranjang Kosong
       </Text>
       <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
@@ -139,30 +163,63 @@ export default function CartScreen() {
   // ======================
   //
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
-      
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+      edges={["top"]}
+    >
       {/* Header Section */}
-      <View style={[styles.header, { paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.sm }]}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingHorizontal: spacing.md,
+            paddingTop: spacing.xs,
+            paddingBottom: spacing.sm,
+          },
+        ]}
+      >
         <View style={styles.headerTitleRow}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, marginRight: spacing.sm })}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.6 : 1,
+              marginRight: spacing.sm,
+            })}
           >
-            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
+            <Ionicons
+              name="chevron-back"
+              size={26}
+              color={colors.textPrimary}
+            />
           </Pressable>
           <View>
-            <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.h1 }]}>Keranjang</Text>
+            <Text
+              style={[
+                styles.title,
+                { color: colors.textPrimary, fontSize: typography.h1 },
+              ]}
+            >
+              Keranjang
+            </Text>
             {hasItems && (
-               <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                 {items.length} barang · {selectedCount} dipilih
-               </Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                {items.length} barang · {selectedCount} dipilih
+              </Text>
             )}
           </View>
         </View>
         {hasItems && (
-          <Pressable style={[styles.clearBtn, { borderColor: colors.danger, borderRadius: radius.sm }]} onPress={handleClearCart}>
-            <Text style={[styles.clearBtnText, { color: colors.danger }]}>Hapus Semua</Text>
+          <Pressable
+            style={[
+              styles.clearBtn,
+              { borderColor: colors.danger, borderRadius: radius.sm },
+            ]}
+            onPress={handleClearCart}
+          >
+            <Text style={[styles.clearBtnText, { color: colors.danger }]}>
+              Hapus Semua
+            </Text>
           </Pressable>
         )}
       </View>
@@ -171,43 +228,68 @@ export default function CartScreen() {
       {hasItems && (
         <Pressable
           style={[
-            styles.selectAllBar, 
-            { 
-              marginHorizontal: spacing.md, 
-              marginBottom: spacing.sm, 
-              paddingVertical: spacing.sm, 
-              paddingHorizontal: spacing.md, 
-              backgroundColor: colors.card, 
-              borderRadius: radius.md, 
-              borderColor: colors.border 
-            }
+            styles.selectAllBar,
+            {
+              marginHorizontal: spacing.md,
+              marginBottom: spacing.sm,
+              paddingVertical: spacing.sm,
+              paddingHorizontal: spacing.md,
+              backgroundColor: colors.card,
+              borderRadius: radius.md,
+              borderColor: colors.border,
+            },
           ]}
           onPress={toggleSelectAll}
         >
-          <View style={[styles.checkbox, { borderColor: colors.border, backgroundColor: isAllSelected ? colors.primary : colors.card }]}>
+          <View
+            style={[
+              styles.checkbox,
+              {
+                borderColor: colors.border,
+                backgroundColor: isAllSelected ? colors.primary : colors.card,
+              },
+            ]}
+          >
             {isAllSelected && (
               <Ionicons name="checkmark" size={14} color={colors.white} />
             )}
           </View>
-          <Text style={[styles.selectAllText, { marginLeft: spacing.sm, color: colors.textPrimary }]}>
+          <Text
+            style={[
+              styles.selectAllText,
+              { marginLeft: spacing.sm, color: colors.textPrimary },
+            ]}
+          >
             {isAllSelected ? "Batalkan Semua" : "Pilih Semua"}
           </Text>
           {hasSelection && (
-            <View style={[styles.selectionBadge, { backgroundColor: colors.primary + "15", borderRadius: radius.full, paddingHorizontal: spacing.sm }]}>
-              <Text style={[styles.selectionBadgeText, { color: colors.primary }]}>{selectedCount} dipilih</Text>
+            <View
+              style={[
+                styles.selectionBadge,
+                {
+                  backgroundColor: colors.primary + "15",
+                  borderRadius: radius.full,
+                  paddingHorizontal: spacing.sm,
+                },
+              ]}
+            >
+              <Text
+                style={[styles.selectionBadgeText, { color: colors.primary }]}
+              >
+                {selectedCount} dipilih
+              </Text>
             </View>
           )}
         </Pressable>
       )}
 
       {/* Cart List */}
-      <FlatList
+      <SafeFlatListContainer
         data={items}
         keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.listContent,
-          { paddingHorizontal: spacing.md, paddingBottom: 160 },
+          { paddingHorizontal: spacing.md },
           !hasItems && styles.listContentEmpty,
         ]}
         initialNumToRender={8}
@@ -220,21 +302,28 @@ export default function CartScreen() {
 
       {/* Sticky Footer */}
       {hasItems && (
-        <View style={[
-          styles.footer, 
-          { 
-            backgroundColor: colors.card, 
-            borderTopColor: colors.border, 
-            paddingHorizontal: spacing.md, 
-            paddingTop: spacing.md, 
-            paddingBottom: spacing.lg 
-          }
-        ]}>
+        <View
+          style={[
+            styles.footer,
+            {
+              backgroundColor: colors.card,
+              borderTopColor: colors.border,
+              paddingHorizontal: spacing.md,
+              paddingTop: spacing.md,
+              paddingBottom: spacing.lg,
+            },
+          ]}
+        >
           <View style={[styles.totalArea, { marginRight: spacing.md }]}>
             <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
               Total {hasSelection ? `(${selectedCount} barang)` : ""}
             </Text>
-            <Text style={[styles.totalPrice, { color: colors.textPrimary, fontSize: typography.h2 }]}>
+            <Text
+              style={[
+                styles.totalPrice,
+                { color: colors.textPrimary, fontSize: typography.h2 },
+              ]}
+            >
               {hasSelection
                 ? `Rp ${selectedTotal.toLocaleString("id-ID")}`
                 : "—"}
@@ -244,7 +333,12 @@ export default function CartScreen() {
           <Pressable
             style={[
               styles.checkoutBtn,
-              { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+              {
+                backgroundColor: colors.primary,
+                borderRadius: radius.md,
+                paddingHorizontal: spacing.lg,
+                paddingVertical: spacing.md,
+              },
               !hasSelection && { backgroundColor: colors.border },
             ]}
             onPress={handleCheckout}
@@ -274,7 +368,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  
+
   // -- Header --
   header: {
     flexDirection: "row",
@@ -301,7 +395,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
-  
+
   // -- Select All Bar --
   selectAllBar: {
     flexDirection: "row",
@@ -328,13 +422,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
-  
+
   // -- List --
   listContent: {},
   listContentEmpty: {
     flex: 1,
   },
-  
+
   // -- Empty State --
   emptyContainer: {
     flex: 1,
@@ -360,7 +454,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
   },
-  
+
   // -- Footer --
   footer: {
     position: "absolute",

@@ -1,9 +1,19 @@
+import { useSafeTabBarHeight } from "@/hooks/useSafeTabBarHeight";
 import { useTheme } from "@/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 
+//
+// ======================
+// Tabs Layout (Bottom Navigation)
+// ======================
+//
+// Menggunakan safe area hook untuk ensure TabBar selalu berada di area aman
+// pada semua perangkat Android (3-button nav, gesture nav) dan iOS.
+//
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const { tabBarStyle } = useSafeTabBarHeight();
 
   return (
     <Tabs
@@ -11,12 +21,11 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
+        // Merge safe area calculated style dengan theme colors
         tabBarStyle: {
+          ...tabBarStyle,
           backgroundColor: colors.card,
           borderTopColor: colors.border,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 6,
         },
       }}
     >

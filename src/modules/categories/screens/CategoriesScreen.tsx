@@ -1,18 +1,18 @@
-import React, { useMemo, useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import SearchBar from "@/components/inputs/SearchBar";
 import CategoryGridCard from "@/components/cards/CategoryCard";
-import { useCategories } from "../hooks/useCategories";
+import SearchBar from "@/components/inputs/SearchBar";
+import { SafeFlatListContainer } from "@/components/wrappers";
 import { useTheme } from "@/theme";
+import { useCategories } from "../hooks/useCategories";
 
 const CategoriesScreen = () => {
   const { colors, spacing, typography } = useTheme();
@@ -28,23 +28,53 @@ const CategoriesScreen = () => {
     );
   }, [data, search]);
 
-  const renderCategoryItem = useCallback(({ item }: { item: any }) => (
-    <CategoryGridCard id={item.id} name={item.name} icon={item.icon} />
-  ), []);
+  const renderCategoryItem = useCallback(
+    ({ item }: { item: any }) => (
+      <CategoryGridCard id={item.id} name={item.name} icon={item.icon} />
+    ),
+    [],
+  );
 
   if (isLoading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: colors.background },
+        ]}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top"]}>
-      <View style={[styles.header, { paddingHorizontal: spacing.md, marginBottom: spacing.md }]}>
-        <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.h1 }]}>Categories</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary, marginBottom: spacing.md }]}>Temukan kebutuhan warungmu</Text>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={["top"]}
+    >
+      <View
+        style={[
+          styles.header,
+          { paddingHorizontal: spacing.md, marginBottom: spacing.md },
+        ]}
+      >
+        <Text
+          style={[
+            styles.title,
+            { color: colors.textPrimary, fontSize: typography.h1 },
+          ]}
+        >
+          Categories
+        </Text>
+        <Text
+          style={[
+            styles.subtitle,
+            { color: colors.textSecondary, marginBottom: spacing.md },
+          ]}
+        >
+          Temukan kebutuhan warungmu
+        </Text>
 
         <SearchBar
           value={search}
@@ -53,13 +83,15 @@ const CategoriesScreen = () => {
         />
       </View>
 
-      <FlatList
+      <SafeFlatListContainer
         data={filteredCategories}
         keyExtractor={(item) => item.id}
         numColumns={2}
-        showsVerticalScrollIndicator={false}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={[styles.contentContainer, { paddingHorizontal: spacing.sm, paddingBottom: 120 }]}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingHorizontal: spacing.sm },
+        ]}
         initialNumToRender={8}
         maxToRenderPerBatch={12}
         windowSize={5}
@@ -74,7 +106,9 @@ const CategoriesScreen = () => {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={{ color: colors.textSecondary }}>Categories not found</Text>
+            <Text style={{ color: colors.textSecondary }}>
+              Categories not found
+            </Text>
           </View>
         }
         renderItem={renderCategoryItem}

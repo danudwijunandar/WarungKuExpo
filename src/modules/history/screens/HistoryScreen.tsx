@@ -3,11 +3,12 @@
 // Imports & Dependencies
 // ======================
 //
-import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, Text, View, RefreshControl } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import { RefreshControl, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import { SafeFlatListContainer } from "@/components/wrappers";
 import { useHistoryStore } from "@/store/history.store";
 import { useTheme } from "@/theme";
 import HistoryEmptyState from "../components/HistoryEmptyState";
@@ -26,7 +27,7 @@ export default function HistoryScreen() {
   //
   const { colors, spacing, typography } = useTheme();
   const transactions = useHistoryStore((s) => s.transactions);
-  
+
   //
   // ======================
   // State
@@ -83,13 +84,12 @@ export default function HistoryScreen() {
       </View>
 
       {/* Transactions List */}
-      <FlatList
+      <SafeFlatListContainer
         data={transactions}
         keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.listContent,
-          { paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+          { paddingHorizontal: spacing.md },
           transactions.length === 0 && styles.listEmpty,
         ]}
         refreshControl={
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  
+
   // -- Header --
   header: {
     justifyContent: "center",
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "700",
   },
-  
+
   // -- List --
   listContent: {
     flexGrow: 1,

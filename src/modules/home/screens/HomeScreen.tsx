@@ -2,13 +2,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Pressable,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,12 +15,15 @@ import CartIconButton from "@/components/buttons/CartIconButton";
 // eslint-disable-next-line import/no-named-as-default
 import ProductCard from "@/components/cards/ProductCard";
 import SearchBar from "@/components/inputs/SearchBar";
+import { SafeFlatListContainer } from "@/components/wrappers";
+import { useSafeTabBarHeight } from "@/hooks/useSafeTabBarHeight";
 import { useProducts } from "@/modules/product/hooks/useProducts";
 import { useTheme } from "@/theme";
 
 export default function HomeScreen() {
   const { colors, spacing, typography, shadows, isEditMode } = useTheme();
   const [search, setSearch] = useState("");
+  const { totalHeight } = useSafeTabBarHeight();
 
   const {
     data: products,
@@ -137,14 +139,12 @@ export default function HomeScreen() {
           Popular Products
         </Text>
 
-        <FlatList
+        <SafeFlatListContainer
           data={filteredProducts}
           keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
           numColumns={2}
           contentContainerStyle={{
             paddingTop: spacing.md,
-            paddingBottom: 140,
           }}
           columnWrapperStyle={{
             justifyContent: "flex-start",
@@ -179,7 +179,7 @@ export default function HomeScreen() {
             styles.fab,
             {
               backgroundColor: colors.primary,
-              bottom: 90,
+              bottom: totalHeight + spacing.md,
               right: spacing.md,
               ...shadows.lg,
             },

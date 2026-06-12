@@ -1,14 +1,15 @@
-import React, { useCallback } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback } from "react";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useFavorite } from "../hooks/use-favorite";
 // eslint-disable-next-line import/no-named-as-default
-import FavoriteProductCard from "../components/FavoriteProductCard";
-import { useTheme } from "@/theme";
+import { SafeFlatListContainer } from "@/components/wrappers";
 import { useToastStore } from "@/store/toast.store";
+import { useTheme } from "@/theme";
+import FavoriteProductCard from "../components/FavoriteProductCard";
 
 export default function FavoriteScreen() {
   const { favorites, clearFavorites } = useFavorite();
@@ -34,57 +35,122 @@ export default function FavoriteScreen() {
             showToast("Semua produk favorit berhasil dihapus", "success");
           },
         },
-      ]
+      ],
     );
   }, [clearFavorites, showToast]);
 
-  const renderFavoriteItem = useCallback(({ item }: { item: any }) => (
-    <FavoriteProductCard
-      id={item.id}
-      title={item.title}
-      image={item.image}
-      price={item.price}
-    />
-  ), []);
+  const renderFavoriteItem = useCallback(
+    ({ item }: { item: any }) => (
+      <FavoriteProductCard
+        id={item.id}
+        title={item.title}
+        image={item.image}
+        price={item.price}
+      />
+    ),
+    [],
+  );
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <View style={[styles.emptyIconContainer, { backgroundColor: colors.card, ...shadows.sm }]}>
-        <Ionicons name="heart-dislike-outline" size={64} color={colors.textSecondary} />
+      <View
+        style={[
+          styles.emptyIconContainer,
+          { backgroundColor: colors.card, ...shadows.sm },
+        ]}
+      >
+        <Ionicons
+          name="heart-dislike-outline"
+          size={64}
+          color={colors.textSecondary}
+        />
       </View>
-      <Text style={[styles.emptyTitle, { color: colors.textPrimary, fontSize: typography.h3, marginBottom: spacing.xs }]}>
+      <Text
+        style={[
+          styles.emptyTitle,
+          {
+            color: colors.textPrimary,
+            fontSize: typography.h3,
+            marginBottom: spacing.xs,
+          },
+        ]}
+      >
         Daftar Favorit Kosong
       </Text>
-      <Text style={[styles.emptySubtitle, { color: colors.textSecondary, marginBottom: spacing.xl }]}>
+      <Text
+        style={[
+          styles.emptySubtitle,
+          { color: colors.textSecondary, marginBottom: spacing.xl },
+        ]}
+      >
         Belum ada barang favoritmu. Yuk, cari produk menarik di WarungKu!
       </Text>
-      <Pressable style={[styles.exploreButton, { backgroundColor: colors.primary, borderRadius: radius.md }]} onPress={handleExplore}>
-        <Text style={[styles.exploreButtonText, { color: colors.white }]}>Mulai Belanja</Text>
+      <Pressable
+        style={[
+          styles.exploreButton,
+          { backgroundColor: colors.primary, borderRadius: radius.md },
+        ]}
+        onPress={handleExplore}
+      >
+        <Text style={[styles.exploreButtonText, { color: colors.white }]}>
+          Mulai Belanja
+        </Text>
       </Pressable>
     </View>
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top"]}>
-      <View style={[styles.header, { paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.md }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={["top"]}
+    >
+      <View
+        style={[
+          styles.header,
+          {
+            paddingHorizontal: spacing.md,
+            paddingTop: spacing.xs,
+            paddingBottom: spacing.md,
+          },
+        ]}
+      >
         <View style={styles.headerTitleContainer}>
-          <Text style={[styles.title, { color: colors.textPrimary, fontSize: typography.h1 }]}>Favorit</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Barang-barang kesukaanmu</Text>
+          <Text
+            style={[
+              styles.title,
+              { color: colors.textPrimary, fontSize: typography.h1 },
+            ]}
+          >
+            Favorit
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            Barang-barang kesukaanmu
+          </Text>
         </View>
         {favorites.length > 0 && (
-          <Pressable style={[styles.clearButton, { borderColor: colors.danger, borderRadius: radius.sm }]} onPress={handleClearAll}>
-            <Text style={[styles.clearButtonText, { color: colors.danger }]}>Hapus Semua</Text>
+          <Pressable
+            style={[
+              styles.clearButton,
+              { borderColor: colors.danger, borderRadius: radius.sm },
+            ]}
+            onPress={handleClearAll}
+          >
+            <Text style={[styles.clearButtonText, { color: colors.danger }]}>
+              Hapus Semua
+            </Text>
           </Pressable>
         )}
       </View>
 
-      <FlatList
+      <SafeFlatListContainer
         data={favorites}
         keyExtractor={(item) => item.id}
         numColumns={2}
-        showsVerticalScrollIndicator={false}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={[styles.listContainer, { paddingHorizontal: spacing.md, paddingBottom: 100 }]}
+        contentContainerStyle={[
+          styles.listContainer,
+          { paddingHorizontal: spacing.md },
+        ]}
         ListEmptyComponent={renderEmptyState}
         initialNumToRender={8}
         maxToRenderPerBatch={10}
