@@ -1,5 +1,5 @@
-import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
 import { ImageUploadService } from "../services/image-upload.service";
 
 export interface ImagePickerResult {
@@ -20,7 +20,8 @@ export const useImageUpload = () => {
       setError(null);
 
       // Request permission
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== "granted") {
         setError("Izin akses ke galeri diperlukan untuk memilih gambar");
@@ -59,7 +60,9 @@ export const useImageUpload = () => {
     }
   };
 
-  const uploadImage = async (pickedImage?: ImagePickerResult): Promise<string | null> => {
+  const uploadImage = async (
+    pickedImage?: ImagePickerResult,
+  ): Promise<string | null> => {
     const imageToUpload = pickedImage?.uri || imageUri;
 
     if (!imageToUpload) {
@@ -71,9 +74,8 @@ export const useImageUpload = () => {
     setError(null);
 
     try {
-      console.log("[ImageUpload] Starting upload from URI:", imageToUpload);
-      const uploadedImageUrl = await ImageUploadService.uploadImage(imageToUpload);
-      console.log("[ImageUpload] Success:", uploadedImageUrl);
+      const uploadedImageUrl =
+        await ImageUploadService.uploadImage(imageToUpload);
       return uploadedImageUrl;
     } catch (err) {
       const errorMessage =
