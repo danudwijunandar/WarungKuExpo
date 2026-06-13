@@ -1,25 +1,61 @@
 {
   "expo": {
-    "name": "warungku",
+    "name": "Warungku",
     "slug": "warungku",
     "version": "1.0.0",
+    "runtimeVersion": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "warungku",
     "userInterfaceStyle": "automatic",
-    "permissions": ["READ_EXTERNAL_STORAGE"],
+    "description": "Aplikasi toko online dengan fitur belanja, cart, dan checkout",
+    "permissions": [
+      "READ_EXTERNAL_STORAGE"
+    ],
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.warungku.app",
+      "buildNumber": "1",
+      "supportsTabletMode": true,
+      "infoPlist": {
+        "UIRequiredDeviceCapabilities": [
+          "armv7"
+        ],
+        "NSLocationWhenInUseUsageDescription": "Aplikasi memerlukan akses lokasi Anda"
+      }
     },
     "android": {
+      "package": "com.warungku.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "versionCode": 1,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["READ_EXTERNAL_STORAGE"]
+      "permissions": [
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "*.warungku.app",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "warungku"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "output": "static",
@@ -43,6 +79,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "77a89fcf-3634-493b-b606-97106f02eb59"
+      }
     }
   }
 }
